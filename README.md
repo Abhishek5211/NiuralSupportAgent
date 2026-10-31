@@ -132,8 +132,8 @@ python -m niural_support_agent.run_benchmark --suite arithmetic --name v4-arithm
 ```
 
 Add `--no-judge` to save answers/traces without judge calls. The notebook defaults
-to manual execution. V4 scores are pending; local calculator checks are not agent
-results. Inspect cases 6/7 for formula interpretation and proportional allocation,
+to manual execution. Revised V4 scored 8/8 in run 7afa7ef5, confirmed by manual
+review. See [iteration findings](docs/iterations.md#v4-measured-result). Inspect cases 6/7 for formula interpretation and proportional allocation,
 and compare model requests, calculator/tool calls, tokens, latency and correctness.
 A calculator call may add a model turn and its schema adds input tokens; neither
 lower cost nor improved agent correctness is assumed. RAG remains deferred.

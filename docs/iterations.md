@@ -172,3 +172,18 @@ flowchart LR
   including when the SDK redacts its validation exception.
 - Offline checks only; no evaluation run. Compare the unchanged suite/settings
   manually. Formula selection, contradictory answers and judge errors remain open.
+
+### V4 measured result
+
+Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limits.
+
+| Metric | Before | After |
+|---|---:|---:|
+| Exported correctness | 6/8 | 8/8 |
+| Tokens | 264,641 | 202,534 (-23.5%) |
+| Mean latency | 18.79 s | 15.80 s (-16%) |
+
+- Manual review agrees with 8/8; the earlier judge falsely passed case 6.
+- Case 3: 10 calculator calls became one. Case 8: four became one; rounding retries disappeared.
+- Keep the fixes. One run is not a reliability guarantee; case 7 still needed more calls.
+- Next: V5 product-guide RAG, starting with FAQ evaluation and cited section retrieval. No new eval was run.
