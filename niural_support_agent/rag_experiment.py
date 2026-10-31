@@ -7,7 +7,8 @@ from statistics import mean
 
 def ensure_faq_dataset(client, cases):
     examples = [{"inputs": {"id": case.id, "question": case.question},
-                 "outputs": {"facts": case.facts, "expected_sections": case.expected_sections}}
+                 "outputs": {"facts": case.facts, "required_sections": case.required_sections,
+                             "alternative_sections": case.alternative_sections}}
                 for case in cases]
     fingerprint = sha256(json.dumps(examples, sort_keys=True).encode()).hexdigest()[:12]
     name = f"niural-product-guide-faq-{fingerprint}"

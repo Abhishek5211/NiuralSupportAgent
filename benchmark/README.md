@@ -3,7 +3,8 @@
 `faq_cases.json` has 34 standalone cases: common tasks (1-10), unusual/keyword-heavy
 queries (11-18), missing-information cases (19-20), short queries (21-30), and
 cross-section questions (31-34). Each has integer `id`,
-`question`, customer-facing `facts`, and `expected_sections` from
+`question`, customer-facing `facts`, `required_sections`, and optional
+`alternative_sections` groups from
 [`PRODUCT_GUIDE.md`](../mock_api/PRODUCT_GUIDE.md). These are source headings,
 not chunk IDs; map them after chunking. Cases 19-20 cite sections that establish
 the limitation, not a benefits procedure or fee rate.
@@ -16,13 +17,15 @@ correctness, grounding and citations. Accept equivalent wording and optional det
 
 Short queries preserve informal wording, exact UI terms and typos. Case 24 requires
 clarifying i 99 rather than inventing a definition; its I-9 section is only a candidate.
-Case 23 lists alternative supporting sections; either establishes the same fact.
+Each required section is needed; each alternative group needs any one section.
+Case 23 has one alternative group. Cases 15/27 omit nonessential source requirements.
 
 Cases 31-34 require all listed sections (3, 2, 3 and 4 respectively). The evaluator
 uses one top-3 search, so case 34 has a maximum recall@3 of 0.75. MRR/nDCG can still
 be perfect with incomplete evidence; inspect recall and saved missing_sections.
 The full chat agent can search again; this single-search baseline cannot. Original
-30 cases remain unchanged; compare those separately when reviewing earlier runs.
+30 questions/facts remain unchanged. The revised labels/rubric create a new dataset
+snapshot; rerun comparisons under the same rules rather than compare old scores directly.
 
 Read the full guide and verified the original 20 cases twice: first against source sections
 and factual anchors, then for exceptions, examples versus actual account records,
@@ -30,10 +33,12 @@ currency/status distinctions and unsupported answers. This is document verificat
 not an agent score. Retrieval is now available through evaluate_retriever; no
 model, embedding or judge calls ran during implementation. Freeze these labels for the first comparison.
 
-The retriever evaluator uses binary relevance from expected source headings:
-recall@3 measures the fraction retrieved, MRR@3 rewards the first relevant rank,
-and nDCG@3 rewards relevant sections appearing earlier. Retrieval errors score zero.
-These measure agreement with section labels, not full answer coverage.
+The retriever evaluator scores section requirements: recall@3 is the fraction
+covered; MRR@3 rewards the first match; nDCG@3 rewards earlier matches. Alternative
+sections earn one credit per group, without double-counting. Retrieval errors score zero.
+These measure label coverage, not sufficient answer evidence. The judge must support
+every requested part from passages; reference facts cannot fill gaps. Reports list
+missing required sections and missing alternative groups separately.
 Alternative sections (case 23), scope limitations (19-20) and candidate evidence for
 an ambiguous typo (24) need interpretation. Optional passage judges assess actual
 relevance/sufficiency; optional answer judges assess correctness, grounding,

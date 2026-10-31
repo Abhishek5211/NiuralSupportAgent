@@ -9,7 +9,7 @@ from statistics import mean
 
 from langsmith import traceable, tracing_context
 from openai import AsyncOpenAI
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from .config import BENCHMARK_DIR, Config
 from .observability import configure_langsmith
@@ -23,16 +23,33 @@ class FAQCase(BaseModel):
     id: int
     question: str
     facts: str
-    expected_sections: list[str] = Field(min_length=1)
+    required_sections: list[str] = Field(default_factory=list)
+    alternative_sections: list[list[str]] = Field(default_factory=list)
+
+    @property
+    def section_groups(self):
+        # Every required section, and one section from each alternative group.
+        return [[section] for section in self.required_sections] + self.alternative_sections
+
+    @model_validator(mode="after")
+    def validate_sections(self):
+        if not self.section_groups or any(not group for group in self.section_groups):
+            raise ValueError("Provide required sections or nonempty alternative groups")
+        return self
 
 
-def score_sections(expected: list[str], retrieved: list[str], k: int = 3) -> dict:
-    expected_set = set(expected)
-    ranks = [rank for rank, section in enumerate(retrieved[:k], 1) if section in expected_set]
+def score_sections(groups: list[list[str]], retrieved: list[str], k: int = 3) -> dict:
+    group_by_section = {section: index for index, group in enumerate(groups) for section in group}
+    found, ranks = set(), []
+    for rank, section in enumerate(retrieved[:k], 1):
+        group = group_by_section.get(section)
+        if group is not None and group not in found:
+            found.add(group)
+            ranks.append(rank)
     dcg = sum(1 / log2(rank + 1) for rank in ranks)
-    ideal_dcg = sum(1 / log2(rank + 1) for rank in range(1, min(k, len(expected_set)) + 1))
+    ideal_dcg = sum(1 / log2(rank + 1) for rank in range(1, min(k, len(groups)) + 1))
     return {
-        f"recall_at_{k}": len(expected_set.intersection(retrieved[:k])) / len(expected_set),
+        f"recall_at_{k}": len(found) / len(groups),
         "reciprocal_rank": 1 / ranks[0] if ranks else 0.0,
         f"ndcg_at_{k}": dcg / ideal_dcg,
     }
@@ -51,21 +68,25 @@ async def evaluate(args):
             # Missing/stale index or labels fail before any embedding or model call.
             await asyncio.to_thread(retriever.open_index)
             sections = {chunk.section for chunk in retriever.chunks}
-            if any(not set(case.expected_sections) <= sections for case in cases):
+            if any(section not in sections for case in cases
+                   for group in case.section_groups for section in group):
                 raise ValueError("FAQ source labels do not match the indexed guide")
             evaluator = RAGEvaluator(config, client, tracing=langsmith is not None)
 
             @traceable(name="Product guide FAQ case")
             async def evaluate_case(case):
                 row = {"id": case.id, "question": case.question,
-                       "expected_sections": case.expected_sections}
+                       "required_sections": case.required_sections,
+                       "alternative_sections": case.alternative_sections}
                 try:
                     result = await retriever.search(case.question)
                     row["retrieval"] = result.model_dump()
                     retrieved_sections = [match.section for match in result.matches]
-                    row["metrics"] = score_sections(case.expected_sections, retrieved_sections)
-                    row["missing_sections"] = [section for section in case.expected_sections
+                    row["metrics"] = score_sections(case.section_groups, retrieved_sections)
+                    row["missing_sections"] = [section for section in case.required_sections
                                                if section not in retrieved_sections]
+                    row["missing_alternative_groups"] = [group for group in case.alternative_sections
+                                                         if not set(group).intersection(retrieved_sections)]
                 except Exception as error:
                     row["error"] = error_details(error)
                     return row
@@ -94,6 +115,7 @@ async def evaluate(args):
 
             metadata = {**git_metadata(), **retriever.metadata, "retrieval_k": 3,
                         "generate": args.generate, "judge": args.judge,
+                        "evaluation_rubric": "faq-evidence-v2",
                         "agent_model": config.model, "judge_model": config.judge_model}
             rows = []
             cases_by_id = {case.id: case for case in cases}

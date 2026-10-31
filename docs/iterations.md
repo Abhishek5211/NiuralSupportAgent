@@ -233,3 +233,10 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
 - Register FAQ runs as LangSmith experiments when tracing is enabled. Reuse a
   content-hashed dataset; publish existing metrics/judgments as feedback without
   extra model calls. Keep JSON and its experiment link. No live eval/upload ran.
+
+- Tighten retrieval judging: every requested part needs passage evidence; reference
+  facts cannot fill gaps. Grade expected limitations/clarifications as valid outcomes.
+- Separate required sections from any-one alternative groups; alternatives earn one
+  coverage credit. Case 23 uses alternatives; remove unnecessary labels in 15/27.
+  Labels create a new LangSmith snapshot (rubric faq-evidence-v2); old scores are not
+  directly comparable. Retrieval/generation unchanged; no live eval or upload ran.
