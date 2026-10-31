@@ -1,10 +1,11 @@
-"""One reusable query tool and three typed detail tools."""
+"""Account queries, detail lookups and one batched Decimal calculator."""
 
 from agents import function_tool
 from agents.exceptions import ModelBehaviorError
 from pydantic import ValidationError
 
 from mock_api import APIError, MockAPI
+from .calculator import Calculation, calculate as run_calculation
 from .query import AccountQuery, StrictModel, query_records
 
 
@@ -88,4 +89,26 @@ def build_tools(account: MockAPI):
         """Get payment status and failure detail using a transaction ID supplied in conversation. There is no payment list or invoice-to-transaction lookup; never guess an ID."""
         return account.get_payment_status(transaction_id).model_dump_json(exclude_unset=True)
 
-    return [query_account, get_employee, get_vendor_invoice, get_payment_status]
+    @function_tool(failure_error_function=api_error)
+    def calculate(calculation: Calculation) -> str:
+        """Compute a complete hypothetical scenario in one batch using Decimal.
+
+        Supply named variables from tool evidence or explicit user assumptions.
+        Each step has a unique name, operation and arguments: {value: "12"} for
+        a decimal literal, or {ref: "salary"} for a variable or earlier result.
+        subtract/divide evaluate left to right. Use round with explicit places
+        and rounding (half_up, half_even, floor, ceiling); USD uses 2 places.
+        Leave places/rounding null for other operations. Do not round intermediate
+        results unless required. For allocation, round the requested recipients
+        first, then subtract their allocations from the budget for the residual.
+        Keep reserve, total cash and spendable cash as distinct named quantities.
+        All steps run locally in one call. Results are decimal strings. This tool
+        verifies arithmetic, not input provenance, currency compatibility or the
+        business meaning of your formulas. It never changes accounts or payments.
+        """
+        try:
+            return run_calculation(calculation).model_dump_json()
+        except ValueError as error:
+            return ErrorResponse(error=ToolError(status=422, message=str(error))).model_dump_json()
+
+    return [query_account, get_employee, get_vendor_invoice, get_payment_status, calculate]

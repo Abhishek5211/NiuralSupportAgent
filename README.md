@@ -99,3 +99,39 @@ turn limit, timeout and actual parallel setting are experiment metadata. Keep
 cases, rubric and models fixed; compare correctness, requests, tokens and latency,
 and inspect tool calls in LangSmith. Internal detail reads share one query tool
 span; their endpoint references appear in `detail_sources`.
+
+## V4: batched Decimal calculator
+
+V4 adds one `calculate` tool for hypothetical arithmetic. Account lookups and
+aggregates still use the existing tools. The calculator accepts named decimal-string
+variables and ordered steps; arguments are either `{"value": "12"}` literals or
+`{"ref": "salary"}` references to inputs or earlier results. Variables are local
+to one invocation. There is no Python execution, expression parser or new dependency.
+
+Supported operations: sum, subtract, multiply, divide, average, min, max, floor,
+ceil and round. Subtraction/division evaluate left to right. Division uses 50
+significant Decimal digits; monetary rounding happens in an explicit round step.
+Set both `places` and `rounding` for round: half_up, half_even, floor or ceiling.
+For example, round a USD fee with places=2 and rounding=half_up. For every other
+operation these two fields are null. Results are returned as named decimal strings.
+
+Related calculations run inside one tool invocation. Unknown/forward references,
+duplicate names, invalid arguments and failed arithmetic return an error, not a
+partial answer. This verifies arithmetic only: the agent still has to choose the
+right inputs, currency units and formulas. In particular, reserved cash remains
+part of total cash; spendable cash is a different quantity.
+
+The shortened v3 prompt is preserved at commit 51f928f. V4 keeps that prompt plus
+calculator guidance. Compare with the same eight arithmetic cases, model settings,
+15-turn limit, judge rubric and parallel-call setting (currently false):
+
+```powershell
+python -m niural_support_agent.run_benchmark --suite arithmetic --name v4-arithmetic-calculator
+```
+
+Add `--no-judge` to save answers/traces without judge calls. The notebook defaults
+to manual execution. V4 scores are pending; local calculator checks are not agent
+results. Inspect cases 6/7 for formula interpretation and proportional allocation,
+and compare model requests, calculator/tool calls, tokens, latency and correctness.
+A calculator call may add a model turn and its schema adds input tokens; neither
+lower cost nor improved agent correctness is assumed. RAG remains deferred.

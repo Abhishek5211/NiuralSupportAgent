@@ -111,3 +111,51 @@ flowchart LR
   arithmetic and hard suites manually with matching models and limits. Compare
   parallel disabled/enabled separately; a changed limit is a different baseline.
 - Calculator and product-guide search remain deferred. No paid runs are automatic.
+
+## V3 measured arithmetic results
+
+- Original prompt: experiment v3-arithmetic-discovery-batch-calc-f1174c03 scored
+  7/8. The name included calc, but revision 3b1a103 had no calculator. All eight
+  completed; parallel calls were false and max_turns was 15. Total tokens 119,701;
+  mean exported latency 12.18 seconds. Earlier v2 scored 4/8 with 142,606 tokens
+  and 13.06 seconds mean latency, but its lower turn limit confounds attribution.
+- Case 7 regressed: correct balances were retrieved, but Orrery received $703.55
+  instead of $703.43 and the residual allocation to Pallas was $0.12 too low.
+  Its trace showed eight tool calls: a sum/select-fields validation error, exact
+  matching of short names, AND-combined name filters, individual vendor lookups,
+  then a correct aggregate. A calculator does not fix those query decisions.
+- Compensation batching was inconsistent: case 3 retrieved five salaries in one
+  query, but case 1 queried each worker separately. Case 3 calculated its average
+  in the model rather than invoking the average operation.
+- Shortened prompt: experiment v3-arithmetic-discovery-batch-calc-short-prompt-10806082
+  scored 6/8. Case 6 treated $2,627.60 of spendable cash as total remaining cash,
+  incorrectly claiming a reserve shortfall; actual cash was $42,627.60, including
+  the $40,000 reserve. Case 7 allocated $773.60 instead of $773.78 to Sable and
+  shifted $0.18 to Pallas. These are substantive errors, not rounding-mode ties.
+- Both exports use identical questions/reference facts and the same answering/judge
+  model names. Each has one repetition; this does not establish that prompt trimming
+  caused the regression. The shortened prompt is now preserved as commit 51f928f.
+
+## V4 - generic batched Decimal calculator
+
+- Hypothesis: one typed calculation batch can make scenario arithmetic and rounding
+  reproducible, especially proportional allocation, with one calculator invocation
+  instead of separate calls for every operation.
+- Add request-local named variables and ordered arithmetic steps. Use decimal strings,
+  a 50-significant-digit Decimal context, explicit rounding modes/places, earlier-step
+  references and structured results/errors. No expression language or code execution.
+- Keep account tools, models, benchmarks, judge rubric, 15-turn limit and parallel
+  setting unchanged. The prompt only adds calculator-use/rounding guidance. Product
+  guide retrieval remains deferred; v4 now refers to the calculator iteration.
+- Offline checks cover the exact allocation and reserve calculations, half-up versus
+  half-even ties, negative values, ceiling/floor, dependent steps and invalid requests.
+  These are implementation checks, not measured agent success. No test files or paid
+  runs are created automatically.
+- Agent results are pending. Manually run the unchanged arithmetic suite as
+  v4-arithmetic-calculator; review cases 6/7 and check all eight for regressions.
+  Compare correctness, model requests, calculator calls, tokens and latency in
+  LangSmith. Calculator results remain derived from account sources/user assumptions.
+- Keep/rollback decision is pending. Execution is deterministic for the supplied
+  steps, but the model can still choose incorrect formulas or inputs; the reserve
+  interpretation failure may persist. Tool-schema tokens and an additional model
+  turn may also offset savings. Do not claim resolution before inspecting traces.

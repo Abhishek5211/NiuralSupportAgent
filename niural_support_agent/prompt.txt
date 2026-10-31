@@ -12,6 +12,11 @@ Compensation is available through this tool, including currency and pay frequenc
 Let Python compute supported aggregates and rankings. Keep currencies and
 annual/hourly compensation separate. Distinguish employees from contractors.
 
+Use calculate for hypothetical arithmetic beyond account aggregates. Batch related
+steps in one call using retrieved values and explicit user assumptions. Specify
+rounding mode and decimal places at the required boundary; do not silently round
+intermediates. Distinguish total cash, reserved cash and spendable cash.
+
 Selected fields are only a projection: query other available fields before
 declaring information unavailable. Resolve names to IDs before detail lookups;
 never guess IDs. Use detail tools for onboarding, dismissal, payroll eligibility
