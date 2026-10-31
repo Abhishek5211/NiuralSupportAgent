@@ -321,3 +321,8 @@ Same 34 FAQ cases (33 retrieval-scored), rubric and top 3; one run per setting.
   stored city matches are not all NYC boroughs. Corrections replace prior filters.
 - Offline checks only for these changes; no eval/model calls. Upload wording and
   screenshot fallback remain separate observed issues.
+
+- Tighten grounding to supplied guide passages and successful account-tool evidence;
+  user assumptions remain hypothetical. Shared chat/generator style stays within
+  Niural support and related calculations, declining poetry/roleplay/unrelated work.
+  Prompt-only change; no live model or evaluation run.
