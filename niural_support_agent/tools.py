@@ -1,5 +1,7 @@
 """Account queries, detail lookups and one batched Decimal calculator."""
 
+import json
+
 from agents import function_tool
 from agents.exceptions import ModelBehaviorError
 from pydantic import ValidationError
@@ -30,6 +32,31 @@ def api_error(context, error):
     else:
         status, message = 500, "Account tool failed. No result was produced."
     return ErrorResponse(error=ToolError(status=status, message=message)).model_dump_json()
+
+
+def calculator_error(context, error):
+    # The SDK may redact the original ValidationError; recover safe field messages.
+    try:
+        payload = json.loads(context.tool_arguments)["calculation"]
+        Calculation.model_validate(payload)
+    except ValidationError as validation:
+        messages = []
+        for issue in validation.errors(include_input=False, include_url=False, include_context=False):
+            message = issue["msg"].removeprefix("Value error, ")
+            location = issue["loc"]
+            if len(location) > 1 and location[0] in {"steps", "variables"}:
+                item = payload[location[0]][location[1]]
+                name = item.get("name") if isinstance(item, dict) else None
+                label = "Step" if location[0] == "steps" else "Variable"
+                if not message.startswith(f"{label} "):
+                    message = f"{label} {name or '#' + str(location[1] + 1)}: {message}"
+            messages.append(message)
+        message = "; ".join(dict.fromkeys(messages))
+    except (json.JSONDecodeError, KeyError, TypeError):
+        message = "Supply a valid JSON object with a calculation containing variables and steps"
+    else:
+        return api_error(context, error)
+    return ErrorResponse(error=ToolError(status=422, message=message)).model_dump_json()
 
 
 def build_tools(account: MockAPI):
@@ -89,17 +116,18 @@ def build_tools(account: MockAPI):
         """Get payment status and failure detail using a transaction ID supplied in conversation. There is no payment list or invoice-to-transaction lookup; never guess an ID."""
         return account.get_payment_status(transaction_id).model_dump_json(exclude_unset=True)
 
-    @function_tool(failure_error_function=api_error)
+    @function_tool(failure_error_function=calculator_error)
     def calculate(calculation: Calculation) -> str:
         """Compute a complete hypothetical scenario in one batch using Decimal.
 
         Supply named variables from tool evidence or explicit user assumptions.
         Each step has a unique name, operation and arguments: {value: "12"} for
         a decimal literal, or {ref: "salary"} for a variable or earlier result.
-        subtract/divide evaluate left to right. Use round with explicit places
-        and rounding (half_up, half_even, floor, ceiling); USD uses 2 places.
-        Leave places/rounding null for other operations. Do not round intermediate
-        results unless required. For allocation, round the requested recipients
+        subtract/divide evaluate left to right. Any operation can round its result:
+        supply both places and rounding (half_up, half_even, floor, ceiling), or
+        leave both null. USD uses 2 places. Standalone round requires both fields.
+        Later steps use the rounded result. Do not round intermediates unless
+        required. For allocation, round the requested recipients
         first, then subtract their allocations from the budget for the residual.
         Keep reserve, total cash and spendable cash as distinct named quantities.
         All steps run locally in one call. Results are decimal strings. This tool

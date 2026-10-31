@@ -110,10 +110,12 @@ to one invocation. There is no Python execution, expression parser or new depend
 
 Supported operations: sum, subtract, multiply, divide, average, min, max, floor,
 ceil and round. Subtraction/division evaluate left to right. Division uses 50
-significant Decimal digits; monetary rounding happens in an explicit round step.
-Set both `places` and `rounding` for round: half_up, half_even, floor or ceiling.
-For example, round a USD fee with places=2 and rounding=half_up. For every other
-operation these two fields are null. Results are returned as named decimal strings.
+significant Decimal digits. Any operation can round its result by supplying both
+`places` and `rounding`: half_up, half_even, floor or ceiling. For example, divide
+68800 by 12 with places=2 and rounding=half_up to return 5733.33 directly. Leave
+both fields null to preserve precision. Standalone round still requires both;
+later steps use the rounded result. Results are named decimal strings. Invalid
+requests return specific validation messages with step names where available.
 
 Related calculations run inside one tool invocation. Unknown/forward references,
 duplicate names, invalid arguments and failed arithmetic return an error, not a

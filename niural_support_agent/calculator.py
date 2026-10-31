@@ -53,9 +53,9 @@ class Step(StrictModel):
                        "min", "max", "floor", "ceil", "round"]
     arguments: list[Number | Reference] = Field(min_length=1, max_length=100)
     places: int | None = Field(default=None, ge=0, le=12,
-                               description="round only: decimal places, e.g. 2 for USD cents.")
+                               description="Optional result rounding for any operation; e.g. 2 for USD cents.")
     rounding: Literal["half_up", "half_even", "floor", "ceiling"] | None = Field(
-        default=None, description="Required for round; floor/ceiling mean toward negative/positive infinity.")
+        default=None, description="Supply with places; required for round. Floor/ceiling mean toward negative/positive infinity.")
 
     @model_validator(mode="after")
     def validate_operation(self):
@@ -63,11 +63,10 @@ class Step(StrictModel):
             raise ValueError(f"Step {self.name}: {self.operation} requires one argument")
         if self.operation in {"subtract", "divide"} and len(self.arguments) < 2:
             raise ValueError(f"Step {self.name}: {self.operation} requires at least two arguments")
-        if self.operation == "round":
-            if self.places is None or self.rounding is None:
-                raise ValueError(f"Step {self.name}: round requires places and rounding")
-        elif self.places is not None or self.rounding is not None:
-            raise ValueError(f"Step {self.name}: places and rounding are only valid for round")
+        if (self.places is None) != (self.rounding is None):
+            raise ValueError(f"Step {self.name}: supply both places and rounding, or neither")
+        if self.operation == "round" and self.places is None:
+            raise ValueError(f"Step {self.name}: round requires places and rounding")
         return self
 
 
@@ -82,7 +81,7 @@ class Calculation(StrictModel):
             raise ValueError("Variable names must be unique")
         for step in self.steps:
             if step.name in names:
-                raise ValueError(f"Duplicate name: {step.name}")
+                raise ValueError(f"Step {step.name}: name duplicates an input or earlier step")
             for argument in step.arguments:
                 if isinstance(argument, Reference) and argument.ref not in names:
                     raise ValueError(f"Step {step.name}: unknown or forward reference {argument.ref}")
@@ -97,7 +96,7 @@ class CalculationResult(StrictModel):
 def calculate(calculation: Calculation) -> CalculationResult:
     values = {variable.name: Decimal(variable.value) for variable in calculation.variables}
     results = []
-    # Division uses 50 significant digits. Only explicit round steps quantize money.
+    # Compute at full context precision, then apply any explicitly requested rounding.
     with localcontext(Context(prec=50, rounding=ROUND_HALF_EVEN, Emax=100, Emin=-100)) as context:
         context.traps[Underflow] = True
         for step in calculation.steps:
@@ -114,9 +113,10 @@ def calculate(calculation: Calculation) -> CalculationResult:
                     case "max": result = max(args)
                     case "floor": result = args[0].to_integral_value(rounding=ROUND_FLOOR)
                     case "ceil": result = args[0].to_integral_value(rounding=ROUND_CEILING)
-                    case "round":
-                        result = args[0].quantize(Decimal(1).scaleb(-step.places),
-                                                  rounding=ROUNDING[step.rounding])
+                    case "round": result = args[0]
+                if step.places is not None:
+                    result = result.quantize(Decimal(1).scaleb(-step.places),
+                                             rounding=ROUNDING[step.rounding])
                 result = +result  # Apply the bounded Decimal context before formatting.
             except DecimalException as error:
                 raise ValueError(f"Step {step.name} failed: {type(error).__name__}") from None

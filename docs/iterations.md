@@ -159,3 +159,16 @@ flowchart LR
   steps, but the model can still choose incorrect formulas or inputs; the reserve
   interpretation failure may persist. Tool-schema tokens and an additional model
   turn may also offset savings. Do not claim resolution before inspecting traces.
+
+### V4 follow-up: rounding and validation feedback
+
+- Run 3d024296 exported 6/8; manual review found 5/8 because case 6 was falsely
+  accepted. Case 3 exhausted 15 turns after five lookups and ten calculator calls.
+- Cause: rounding attached to divide/multiply was rejected; generic 422 messages
+  hid the reason. Case 8 also retried this mistake three times.
+- Change: allow explicit rounding on any operation. Require both places and mode;
+  round the result once, before later steps reference it. Standalone round remains.
+- Change: calculator validation errors now identify the step and actual problem,
+  including when the SDK redacts its validation exception.
+- Offline checks only; no evaluation run. Compare the unchanged suite/settings
+  manually. Formula selection, contradictory answers and judge errors remain open.
