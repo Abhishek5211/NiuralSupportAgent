@@ -66,7 +66,7 @@ def build_tools(account: MockAPI):
 
     @function_tool(failure_error_function=api_error)
     def get_employee(employee_id: str) -> str:
-        """Get onboarding blockers, payroll eligibility and dismissal details. Resolve names with query_account first unless an ID is already in context."""
+        """Get compensation (salary or hourly amount, currency and ANNUAL/HOURLY frequency), onboarding blockers, payroll eligibility and dismissal details. Resolve names with query_account first unless an ID is already in context."""
         return account.get_employee(employee_id).model_dump_json(exclude_unset=True)
 
     @function_tool(failure_error_function=api_error)
