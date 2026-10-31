@@ -1,0 +1,201 @@
+{
+  "snapshot_date": "2026-09-28",
+  "cases": 10,
+  "user_turns": 14,
+  "preserved_case_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "new_case_ids": [
+    9,
+    10
+  ],
+  "hard_cases_sha256": "22b8b4a79b9e8d1e26c7ba9c179e3fdabeac5b903ed3b76cfed0c761dfbc9da0",
+  "source_sha256": {
+    "employees.json": "2b99337f97176e929bd89e2e226ba517c1874565ea030d07af4a35ea4398e6a8",
+    "payments.json": "1987e7d2c376eb434f3a543cb0cf3a7dbe8069cecc9f53746e6d8857cf3ecfe7",
+    "vendor_invoices.json": "e8ba3bf75571ab35a7e572094085003741b3558f1dcbd0ff1b7b8301a0800207",
+    "vendors.json": "8a3d416f253a12d4209f242dfcc3bf517f232aade8c3a493cd7fae38da229758"
+  },
+  "turn_verification": [
+    {
+      "case": 9,
+      "turn": 1,
+      "methods": [
+        "raw_json_decimal",
+        "sqlite_integer_cents",
+        "authenticated_api_typed_query"
+      ],
+      "verified": true,
+      "names_and_salary_cents": [
+        [
+          "Noor Al-Sabah",
+          15800000
+        ],
+        [
+          "Anouk Visser",
+          13200000
+        ],
+        [
+          "Kwame Boateng",
+          12800000
+        ],
+        [
+          "Teodor Lindqvist",
+          8800000
+        ],
+        [
+          "Mateo Villalobos",
+          7600000
+        ]
+      ],
+      "count": 5,
+      "annual_total_cents": 58200000
+    },
+    {
+      "case": 9,
+      "turn": 2,
+      "methods": [
+        "raw_json_decimal",
+        "sqlite_integer_cents",
+        "authenticated_api_typed_query"
+      ],
+      "verified": true,
+      "names_and_salary_cents": [
+        [
+          "Noor Al-Sabah",
+          15800000
+        ],
+        [
+          "Anouk Visser",
+          13200000
+        ],
+        [
+          "Mateo Villalobos",
+          7600000
+        ]
+      ],
+      "count": 3,
+      "annual_total_cents": 36600000
+    },
+    {
+      "case": 9,
+      "turn": 3,
+      "methods": [
+        "raw_json_decimal",
+        "sqlite_integer_cents",
+        "authenticated_api_typed_query"
+      ],
+      "verified": true,
+      "names_and_salary_cents": [
+        [
+          "Noor Al-Sabah",
+          15800000
+        ],
+        [
+          "Anouk Visser",
+          13200000
+        ],
+        [
+          "Kwame Boateng",
+          12800000
+        ]
+      ],
+      "count": 3,
+      "annual_total_cents": 41800000
+    },
+    {
+      "case": 10,
+      "turn": 1,
+      "methods": [
+        "raw_json_decimal",
+        "sqlite_integer_cents",
+        "authenticated_api_typed_query"
+      ],
+      "verified": true,
+      "bills": [
+        [
+          "INV-2041",
+          "2026-10-05",
+          840000,
+          "PENDING_APPROVAL"
+        ],
+        [
+          "INV-2044",
+          "2026-10-05",
+          98000,
+          "PENDING_APPROVAL"
+        ],
+        [
+          "INV-2050",
+          "2026-10-06",
+          640000,
+          "SCHEDULED"
+        ],
+        [
+          "INV-2064",
+          "2026-10-10",
+          430000,
+          "SCHEDULED"
+        ]
+      ],
+      "total_cents": 2008000
+    },
+    {
+      "case": 10,
+      "turn": 2,
+      "methods": [
+        "raw_json_decimal",
+        "sqlite_integer_cents",
+        "authenticated_api_typed_query"
+      ],
+      "verified": true,
+      "bills": [
+        [
+          "INV-2050",
+          "2026-10-06",
+          640000,
+          "SCHEDULED"
+        ],
+        [
+          "INV-2064",
+          "2026-10-10",
+          430000,
+          "SCHEDULED"
+        ]
+      ],
+      "total_cents": 1070000
+    },
+    {
+      "case": 10,
+      "turn": 3,
+      "methods": [
+        "raw_json_decimal",
+        "sqlite_integer_cents",
+        "authenticated_api_typed_query"
+      ],
+      "verified": true,
+      "bills": [
+        [
+          "INV-2048",
+          "2026-10-18",
+          2200000,
+          "PENDING_APPROVAL"
+        ]
+      ],
+      "total_cents": 2200000
+    }
+  ],
+  "detail_checks": {
+    "Marisol": "pending, NY, start 2026-09-21; excluded",
+    "Vantage approval": "Beatrix approved step 1; Rosalind pending step 2"
+  },
+  "agent_judge_embedding_network_calls": 0,
+  "performance_score": null
+}

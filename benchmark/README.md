@@ -1,3 +1,36 @@
+# Extended account benchmark
+
+- **Cases:** `cases.json` has 33 scenarios and 36 generated user turns. Cases 8, 29 and 30 each contain two live turns.
+- **Clock:** Today is the fixture snapshot, **2026-09-28**, not the host clock.
+- **Schema:** `id`, final `question`, final `facts`; scripted cases add ordered `turns`, each with `question` and hidden `facts`. The final turn must match the top-level question/facts. Optional `context` remains available for explicit initial history.
+- **Live scenarios:**
+  - 8: unidentified failed payment -> agent asks for reference -> user supplies `txn-88403` -> agent checks the actual failure.
+  - 29: Halberd balance -> user corrects the vendor to Orrery -> agent updates the answer.
+  - 30: New York City roster -> user corrects to all New York state -> agent includes Brooklyn.
+- **Execution:** Reset once, use a unique session for all turns, and retain actual agent/tool history. No canned assistant answers or case-ID-specific hints. Stop after a runtime/empty-answer failure and clear the session afterward.
+- **Scoring:** Judge every turn using its own reference and actual preceding conversation. All turns must pass for the case to pass. Runtime failures fail the case; judge outages are ungraded unless another turn already failed. Earlier assistant claims are not reference truth.
+- **Evidence:** `turn_results` retains each question, preceding conversation, answer/error, usage and latency. Top-level usage/latency aggregate the conversation. Existing LangSmith tracing records the tool/model calls.
+- **Reported result:** Multi-turn answer accuracy **1.0**, reported by the author. The run export, case denominator and experiment link have not been inspected here; this is not a measured result for the new failure suite.
+- **Coverage:** 9-18 cover relative dates; 19-28 cover rankings; 31-32 cover a missing bill and missing transaction reference. Case 28 explicitly includes contractors (Ines); case 33 explicitly excludes them (Freya). Runtime transient-fault injection is in the separate failure suite below.
+- **Boundaries:** 15 days ahead = 2026-10-13; three calendar months back = 2026-06-28; the last 30 dates including today start 2026-08-30. Future windows filter current records, not predicted payment outcomes.
+- **Label checks:** Date/money/ranking references were checked with raw JSON/Python/Decimal and independent SQLite queries, plus API/contract checks. New conversation setup references were checked against fixtures and authenticated API reads. [Verification evidence](results/cases-extended-verification.json)
+- **Dataset:** `--suite standard` uses `niural-account-standard-v3`; earlier datasets stay frozen. The hard suite now uses its own multi-turn snapshot described below; the arithmetic multi-turn snapshot is described below. The common judge rubric now explicitly accepts reference-required clarification; use the same revised rubric for both sides of a new comparison.
+- **Run:** `python -m niural_support_agent.run_benchmark --suite standard --name standard-multiturn-baseline`.
+- **Comparison:** These are verified labels and a tested harness, not a new agent score. Multi-turn execution changes the scenario; rerun both compared code versions with this same script/rubric before claiming improvement.
+
+# Failure scenarios
+
+- **File:** [fail_scenarios.json](fail_scenarios.json): **7 cases / 11 user turns**, separate from normal accuracy cases.
+- **Coverage:** expired authentication (401), permission denial (403), unavailable bill detail (503), transaction timeout (504), employee-detail outage then recovery, vendor correction followed by a run timeout and retry, and a missing transaction (native 404) followed by a corrected ID.
+- **Injection:** `faults` contains `{turn, endpoint, status}` rules. `*` affects account reads only; `RUN` simulates an agent-run timeout before a model call. Faults remain active for every matching call on that user turn, then clear on later turns. The model never receives the schedule or hidden expected answers. These simulate API errors locally, not network transport failures.
+- **Recovery:** Case 6 sets `continue_on_error: true` and expects a runtime `timeout` on turn 2. Other runtime errors still fail. A failed run preserves the user's correction and a safe error notice, discarding incomplete tool/model items. Case 5 handles an API error as a normal conversational answer and retries on turn 2.
+- **Scoring:** Judge every conversational answer against that turn's hidden facts; the expected runtime timeout is checked deterministically. All turns must pass. Required injections must appear in `fault_events`; an unexercised rule leaves the case ungraded. The native 404 case has no synthetic rule.
+- **Isolation:** Each case has a fresh session; fault state is scoped to its async execution. Standard, hard and arithmetic datasets keep their current inputs/references.
+- **Dataset:** `niural-account-failures-v1`.
+- **Run:** `python -m niural_support_agent.run_benchmark --suite failures --name failure-baseline`.
+- **Verified locally:** Fault-to-tool error mapping, recovery on later turns, concurrent fault isolation, hidden references and per-turn scoring. The original failed-turn bug loses the Orrery correction; the revised runtime retains it. Existing dataset inputs/references are unchanged. No test files were created.
+- **Status:** Failure-suite accuracy is unmeasured; these local checks used deterministic substitutes for model execution. No paid model, embedding or remote LangSmith calls ran.
+
 # Product-guide FAQ baseline
 
 `faq_cases.json` has 34 standalone cases: common tasks (1-10), unusual/keyword-heavy
@@ -60,44 +93,42 @@ on the same snapshot. `--name` labels the experiment; JSON keeps its link.
 
 # Arithmetic baseline
 
-`arithmetic_cases.json` contains eight self-contained hypothetical scenarios with
-integer `id`, `question` and natural-language `facts`. Questions use the snapshot
-date already supplied by the system prompt. User-supplied budgets, hours, reserve
-rules, discounts and pricing targets are assumptions, not account facts.
+- **Scenarios:** `arithmetic_cases.json` has **10 cases / 14 user turns**. Original cases 1-8 are unchanged; cases 9-10 each contain three live turns.
+- **Clock and inputs:** Use fixture snapshot 2026-09-28. Budgets, raises, hours, reserves, discounts and fees supplied by the user are hypothetical assumptions; recorded salaries, rates and vendor balances come from authenticated account data.
+- **Case 9:** Settle all unpaid bills -> overdue-only plus 5% raises -> replace raises with 3% and reserve with 10% of original cash. Final: USD 49,955 monthly salaries; three complete months; USD 32,365 cash remains; USD 37,590 extra starting cash is needed for four months with the reserve fixed at USD 20,000.
+- **Case 10:** Original project quote -> customer discount and processing fee -> correct hours, supplier bill, discount and margin target. Final target quote USD 19,653.26; a mistaken 30% markup quotes USD 16,504.80 but produces only 17.03% margin after fees.
+- **Rounding:** Quote upward to cents, then compute receipt/fee/profit from that rounded quote without intermediate rounding. Round displayed amounts/percentages half-up to two decimals. Raises in case 9 replace earlier assumptions and always apply to original recorded salaries.
+- **Verification:** Every new turn was checked twice: raw-fixture 50-digit Decimal arithmetic and independent SQLite integer-cent inputs with exact Fraction arithmetic. Recorded inputs were also checked against MockAPI. [Per-turn evidence](results/arithmetic-multiturn-verification.json)
+- **Execution/scoring:** Use the existing `turns` format. Preserve actual conversation/tool history; judge each turn against its hidden reference. Every turn must pass. No canned assistant answers or extra test files.
+- **Dataset:** `niural-account-arithmetic-v2`; the previous eight-case `niural-account-arithmetic-v1` remains frozen. Compare agent versions only on the same cases, rubric, model settings and turn budgets.
+- **Run:** `python -m niural_support_agent.run_benchmark --suite arithmetic --name arithmetic-multiturn-baseline`.
+- **Status:** References are verified; no live model, judge, embedding or remote LangSmith calls were made during preparation. No new agent performance score is claimed.
 
-| Case | Coverage | Reference result |
-|---|---|---|
-| 1 | Percentage reserve, quarterly salaries and overdue bills | $163,270 required; $3,270 shortfall against the reserve |
-| 2 | Vendor totals, ascending order and whole-balance allocation | Four vendors; $9,872.40 allocated; $127.60 remaining |
-| 3 | Mean salary, conditional raises and new mean | $116,400 original mean; $68,800 annual increase; $130,160 new mean |
-| 4 | Sequential discount and fees with cent rounding | A $17,553.92 versus B $17,805.54; A saves $251.62 |
-| 5 | Hourly contractor costs and contingency | $7,205 planned cost; $295 under budget |
-| 6 | Vendor settlement, reserve and complete-month runway | Two months; $42,627.60 cash remains, $2,627.60 above reserve |
-| 7 | Proportional vendor allocation and rounding remainder | $5,000 allocated exactly; $12,770 remains overdue |
-| 8 | Contractor/vendor costs, margin versus markup | $22,226.67 for 25% margin; 25% markup gives $20,837.50 and 20% margin |
-
-Reference inputs and calculations were checked locally using raw fixture data,
-Decimal arithmetic, SQLite integer-cent totals and authenticated API reads. These
-are reference labels, not measured agent performance. No agent or judge calls
-were made while preparing this suite. No hidden context or required tool sequence
-is supplied. The agent sees only each question; reference facts go to the judge.
-
-Run manually with `--suite arithmetic --name v2-arithmetic-baseline`; the runner
-uses the separate LangSmith dataset `niural-account-arithmetic-v1`. The existing
-dataset guard rejects changed questions or facts. Keep this dataset, shared judge
-rubric, answering/judge models, model-turn limits and concurrency fixed when
-comparing unchanged v2 against v3. Preserve runtime failures and unresolved answers
-as baseline findings rather than fixing the agent during measurement. Review
-disputed judge verdicts against the stated hypothetical assumptions and arithmetic.
-The existing evaluator records answers, usage, latency, errors and correctness;
-LangSmith records model/tool traces. The score remains unmeasured until a run.
+| Original case | Verified reference result |
+|---|---|
+| 1 | USD 163,270 required; USD 3,270 reserve-preserving shortfall |
+| 2 | Four vendor balances; USD 9,872.40 allocated; USD 127.60 remains |
+| 3 | Original mean USD 116,400; annual increase USD 68,800; new mean USD 130,160 |
+| 4 | Offer A USD 17,553.92; offer B USD 17,805.54; A saves USD 251.62 |
+| 5 | Planned cost USD 7,205; USD 295 under budget |
+| 6 | Two complete months; cash USD 42,627.60; USD 2,627.60 above reserve |
+| 7 | USD 5,000 allocated exactly; overdue debt remaining USD 12,770 |
+| 8 | 25% margin quote USD 22,226.67; 25% markup produces 20% margin |
 
 # Initial correctness benchmark
 
-`hard_cases.json` is a separate eight-question compound benchmark. It leaves the
-original eight cases unchanged. Each record has integer `id`, `question`, and
-customer-facing reference `facts`; every question is self-contained and pins
-2026-09-28. No hidden messages or transaction IDs are required.
+- **Hard suite:** `hard_cases.json` has **10 scenarios / 14 user turns**. Original cases 1-8 are unchanged; cases 9-10 each have three live turns.
+- **Case 9:** CA/TX employee roster -> California only -> restore Texas and add a USD 100,000 annual salary floor. Retain manager, status/type and hire-date constraints. Final: Noor, Anouk and Kwame; USD 418,000.00 annually.
+- **Case 10:** Unpaid bills due October 5-11 -> extend to October 18, scheduled only -> Vantage, all unpaid, retaining the corrected window. Final: INV-2048, USD 22,000.00, awaiting Rosalind; Beatrix already approved.
+- **Format:** Ordered `turns` with a question and hidden reference per turn. Top-level question/facts match the final turn; the evaluator generates actual earlier answers and retains tool history.
+- **Scoring:** Every turn must pass. No canned assistant history, case-ID hints or test files are added.
+- **Verified:** All six new turn references agree across raw JSON/Decimal, independent SQLite and authenticated API/query reads. [Verification evidence](results/hard-multiturn-verification.json)
+- **Dataset:** `niural-account-hard-v2` preserves the frozen eight-case `niural-account-hard-v1`. New results are not directly comparable to the old 7/8 result; rerun both agent versions on the same ten scenarios and rubric.
+- **Run:** `python -m niural_support_agent.run_benchmark --suite hard --name hard-multiturn-baseline`.
+- **Status:** Labels and evaluator wiring are verified; no new agent, judge, embedding or remote LangSmith calls have run.
+
+Original compound cases 1-8 remain self-contained and explicitly pin 2026-09-28.
+The new conversation clock is stated in each first turn and retained thereafter.
 
 The first four cases cover vendor/invoice joins plus contacts and totals; employee
 filters plus five individual compensation lookups; paid/unpaid lookalikes plus
@@ -117,9 +148,9 @@ Beatrix; six NY-state workers and one active US contractor recorded in CA.
 These are verified reference labels, not agent scores. No agent/judge inference
 was run. The salary/approval cases need several detail lookups and may expose a
 model-turn budget that is too small. Keep budgets fixed when comparing versions.
-The existing LangSmith batch command still selects the original eight cases;
-use `--suite hard --name v2-hard` to select this separate dataset. It has not been
-uploaded or substituted into the original dataset by the assistant.
+The default standard suite now selects the 33 examples described above;
+use `--suite hard --name hard-multiturn-baseline` for the ten-case hard snapshot.
+No remote dataset has been created or overwritten during this extension.
 
 Cases 5-8 add direct/indirect manager relationships, a teammate's manager plus
 onboarding/dismissal details, null-manager records with direct-report counts,
@@ -133,24 +164,24 @@ USD 20,080.00 (USD 9,380.00 pending approval; USD 10,700.00 scheduled).
 
 Benchmark version: **account-v1** (draft; freeze before the first live comparison).
 
-`cases.json` contains eight cases with exactly three fields: integer `id`,
-customer-facing `question`, and natural-language reference `facts`.
+All account cases retain top-level integer `id`, final customer-facing `question`,
+and natural-language final reference `facts`. Cases 8, 29 and 30 add explicit live
+user-turn scripts with a hidden reference for every turn; case 33 adds an explicit
+employee-only counterpart to the all-worker ranking in case 28.
 The answers are intentionally normal prose. No required tool sequence is scored.
 
-The reference facts were checked against `../../mock_api/data/`. Keep them hidden
+The reference facts were checked against `../mock_api/data/`. Keep them hidden
 from the answering agent. Pass them only to the evaluator/judge.
 
 ## Conditions
 
 - Treat today as **2026-09-28**, matching the supplied fixtures.
 - Start every standalone case in a fresh conversation.
-- Legacy standard case 8 was previously evaluated with an injected transaction
-  reference. That shortcut has been removed. The original file is preserved, but
-  its payment reference answer needs a clarification-aware revision before reuse
-  without an explicit transaction reference. Old seeded LangSmith results are a
-  different scenario; do not silently overwrite or compare them with an unseeded
-  run. The frozen-dataset guard will reject changed context. Hard cases 1-8 are
-  self-contained and receive no injected messages, regardless of case ID.
+- Historical standard case 8 used an injected transaction reference. The current
+  case supplies it through a scripted second user turn after testing clarification.
+  It is a new scenario; historical seeded results are not directly comparable.
+  Hard cases 1-8 remain self-contained and receive no case-ID-based hints.
+  The frozen-dataset guard checks the full turn script and every turn's reference.
 - Case 1's reference distinguishes 14 employees from 16 workers including contractors.
   Accept 14 when explicitly counting employees, or 16 when explicitly including
   contractors. Do not treat contractors as employee-type records.

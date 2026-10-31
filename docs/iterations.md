@@ -335,3 +335,8 @@ Same 34 FAQ cases (33 retrieval-scored), rubric and top 3; one run per setting.
   align the runtime/benchmark date policy before claiming full account correctness.
 - Keep the current approach. These are single-run judge scores, not guarantees on
   unseen cases. Wrap up feature work; no new evaluation was run for this note.
+
+- Account benchmark runner now supports local JSON without LangSmith credentials;
+  --local overrides tracing for one run. Same suites, multi-turn/fault handling and
+  judge; --no-judge skips grading. Save transcripts, tool events, scores, usage and summary;
+  optional LangSmith/notebook behavior retained. Offline checks only; no live eval.

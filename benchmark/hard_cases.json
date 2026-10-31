@@ -38,5 +38,43 @@
     "id": 8,
     "question": "As of September 28, 2026, help me plan bills due from October 5 through October 11 inclusive. Show only unpaid bills in that window, ordered by due date and then invoice number. For each give vendor, invoice number, amount/currency, status, billing email and vendor city/country; for a bill waiting for approval, name the person who must act next. Give separate USD totals for pending-approval and scheduled bills, plus the grand total. Can I assume the scheduled ones have already left our bank account? Exclude bills outside that date window even if they are still outstanding.",
     "facts": "Four unpaid bills fall in the inclusive 2026-10-05 through 2026-10-11 window. In due-date/invoice-number order: INV-2041: Halberd Components Ltd, USD 8,400.00, due 2026-10-05, PENDING_APPROVAL; ap@halberd-components.example; Sheffield, GB; currently awaiting Beatrix Nolan. INV-2044: Orrery Cloud Services, USD 980.00, due 2026-10-05, PENDING_APPROVAL; billing@orrery.example; Dublin, IE; currently awaiting Saoirse Kavanagh. INV-2050: Thicket Design Studio, USD 6,400.00, due 2026-10-06, SCHEDULED; hello@thicketdesign.example; Lisbon, PT; no pending approver identified in the record. INV-2064: Thicket Design Studio, USD 4,300.00, due 2026-10-10, SCHEDULED; hello@thicketdesign.example; Lisbon, PT; no pending approver identified in the record. Pending-approval bills total USD 9,380.00 across two bills. Scheduled bills total USD 10,700.00 across two bills. The combined total is USD 20,080.00. Other unpaid bills, including overdue bills and bills due later in October, are outside this window. SCHEDULED is an invoice status and does not prove that a bank payment has executed or funds have left the account. The supplied bill information cannot confirm bank movement; that would require identifying and checking the actual payment transaction."
+  },
+  {
+    "id": 9,
+    "question": "Include Texas again, but now require at least USD 100,000 annually. Keep the rest. Give names and salaries highest first, headcount and combined annual total. Does Marisol qualify?",
+    "facts": "The final state filter is CA or TX, restoring Texas while retaining direct manager Rosalind Vane, ONBOARDED EMPLOYEE records and start date before 2026-01-01. Require ANNUAL USD salary >=100000. Three qualify, highest first: Noor Al-Sabah USD 158,000.00; Anouk Visser USD 132,000.00; Kwame Boateng USD 128,000.00. Combined annual total USD 418,000.00. Teodor and Mateo fall below the new salary floor. Marisol does not qualify: she is PENDING_ONBOARDING, works in Brooklyn, NY, and started 2026-09-21; any one correct exclusion reason suffices.",
+    "turns": [
+      {
+        "question": "As of September 28, 2026, list Rosalind Vane's onboarded employees in Texas or California hired before January 1, 2026. Exclude contractors. Give names and annual USD salaries, highest first, and headcount.",
+        "facts": "Five employees qualify, in descending annual USD salary order: Noor Al-Sabah USD 158,000.00; Anouk Visser USD 132,000.00; Kwame Boateng USD 128,000.00; Teodor Lindqvist USD 88,000.00; Mateo Villalobos USD 76,000.00. All report directly to Rosalind, are ONBOARDED EMPLOYEE records, work in TX/CA and started before 2026-01-01. Contractors and pending hires are excluded."
+      },
+      {
+        "question": "Actually, use California only. Keep the other filters and salary ordering; give the revised names, salaries and headcount.",
+        "facts": "Keep Rosalind as direct manager, ONBOARDED EMPLOYEE status/type, hire date before 2026-01-01 and ANNUAL USD compensation. Narrow the state filter to CA. Three qualify, in descending annual salary order: Noor Al-Sabah USD 158,000.00; Anouk Visser USD 132,000.00; Mateo Villalobos USD 76,000.00. Do not retain the Texas employees."
+      },
+      {
+        "question": "Include Texas again, but now require at least USD 100,000 annually. Keep the rest. Give names and salaries highest first, headcount and combined annual total. Does Marisol qualify?",
+        "facts": "The final state filter is CA or TX, restoring Texas while retaining direct manager Rosalind Vane, ONBOARDED EMPLOYEE records and start date before 2026-01-01. Require ANNUAL USD salary >=100000. Three qualify, highest first: Noor Al-Sabah USD 158,000.00; Anouk Visser USD 132,000.00; Kwame Boateng USD 128,000.00. Combined annual total USD 418,000.00. Teodor and Mateo fall below the new salary floor. Marisol does not qualify: she is PENDING_ONBOARDING, works in Brooklyn, NY, and started 2026-09-21; any one correct exclusion reason suffices."
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "question": "Actually, switch from scheduled-only to all unpaid bills for Vantage Legal LLP in that same window. Give invoice number, amount, due date, next approver and total. Is Beatrix still blocking it?",
+    "facts": "Retain the corrected inclusive window 2026-10-05 through 2026-10-18. Replace the scheduled-only filter with all unpaid statuses, then filter vendor Vantage Legal LLP. One bill qualifies: INV-2048, USD 22,000.00, due 2026-10-18, PENDING_APPROVAL; total USD 22,000.00. It is currently awaiting Rosalind Vane. Beatrix Nolan already APPROVED step 1 on 2026-09-19 and is not the current blocker; Rosalind is PENDING step 2. Do not revert to the old October 11 end date, keep the superseded SCHEDULED-only filter, or carry over the USD 10,700.00 Thicket total.",
+    "turns": [
+      {
+        "question": "As of September 28, 2026, list unpaid bills due October 5-11 inclusive. Give vendor, invoice number, due date, USD amount and status, ordered by due date then invoice number, plus the total.",
+        "facts": "Four currently unpaid bills qualify in this order: Halberd Components Ltd INV-2041, due 2026-10-05, USD 8,400.00, PENDING_APPROVAL; Orrery Cloud Services INV-2044, due 2026-10-05, USD 980.00, PENDING_APPROVAL; Thicket Design Studio INV-2050, due 2026-10-06, USD 6,400.00, SCHEDULED; Thicket Design Studio INV-2064, due 2026-10-10, USD 4,300.00, SCHEDULED. Total USD 20,080.00. Dates are inclusive; exclude PAID bills and bills outside the window."
+      },
+      {
+        "question": "Correction: extend the end date to October 18 inclusive, but keep only scheduled bills. Give invoice numbers, amounts and total. Have those payments already left our bank?",
+        "facts": "Retain the October 5 start date and extend the inclusive end to 2026-10-18, then narrow status to SCHEDULED. Only Thicket INV-2050 for USD 6,400.00 and INV-2064 for USD 4,300.00 qualify, totaling USD 10,700.00. Vantage INV-2048 is pending approval, not scheduled; Juniper INV-2060 is due October 24 outside the retained window. Scheduled invoice status does not prove funds left the bank; actual bank movement cannot be verified without an identified transaction."
+      },
+      {
+        "question": "Actually, switch from scheduled-only to all unpaid bills for Vantage Legal LLP in that same window. Give invoice number, amount, due date, next approver and total. Is Beatrix still blocking it?",
+        "facts": "Retain the corrected inclusive window 2026-10-05 through 2026-10-18. Replace the scheduled-only filter with all unpaid statuses, then filter vendor Vantage Legal LLP. One bill qualifies: INV-2048, USD 22,000.00, due 2026-10-18, PENDING_APPROVAL; total USD 22,000.00. It is currently awaiting Rosalind Vane. Beatrix Nolan already APPROVED step 1 on 2026-09-19 and is not the current blocker; Rosalind is PENDING step 2. Do not revert to the old October 11 end date, keep the superseded SCHEDULED-only filter, or carry over the USD 10,700.00 Thicket total."
+      }
+    ]
   }
 ]

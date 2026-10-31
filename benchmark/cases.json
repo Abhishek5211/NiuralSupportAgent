@@ -36,7 +36,162 @@
   },
   {
     "id": 8,
-    "question": "The payment for that freight invoice failed - why?",
-    "facts": "The Kestrel Freight payment failed because the funding account had insufficient funds on the settlement date."
+    "question": "The transaction reference is txn-88403. Why did it fail?",
+    "facts": "The Kestrel Freight payment failed because the funding account had insufficient funds on the settlement date.",
+    "turns": [
+      {
+        "question": "The payment for that freight invoice failed - why?",
+        "facts": "No transaction reference has been supplied. Ask for the payment transaction ID before giving a specific failure reason. Do not assume txn-88403 or diagnose insufficient funds yet."
+      },
+      {
+        "question": "The transaction reference is txn-88403. Why did it fail?",
+        "facts": "The Kestrel Freight payment failed because the funding account had insufficient funds on the settlement date."
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "question": "Which unpaid bills are due after today through 15 days from now, inclusive? Give the total in USD.",
+    "facts": "Today is 2026-09-28; the window is 2026-09-29 through 2026-10-13 inclusive. Four bills qualify: Halberd INV-2041, USD 8,400.00, due 2026-10-05; Orrery INV-2044, USD 980.00, due 2026-10-05; Thicket INV-2050, USD 6,400.00, due 2026-10-06; and Thicket INV-2064, USD 4,300.00, due 2026-10-10. Total USD 20,080.00. These are currently unpaid records, not a prediction that they will remain unpaid."
+  },
+  {
+    "id": 10,
+    "question": "Any unpaid bills due exactly 15 days from now?",
+    "facts": "Fifteen calendar days after 2026-09-28 is 2026-10-13. No currently unpaid bill has that due date. This is a successful empty lookup, not an API error."
+  },
+  {
+    "id": 11,
+    "question": "Which bill was issued exactly three calendar months ago?",
+    "facts": "Three calendar months before 2026-09-28 is 2026-06-28, not a 90-day subtraction. Kestrel Freight bill INV-2054 was issued that day for USD 2,980.00. Its current snapshot status is PAID, with paid_date 2026-08-10; this does not mean it was paid on its issue date."
+  },
+  {
+    "id": 12,
+    "question": "How many bills were issued from three calendar months ago through today, inclusive, and what is their total?",
+    "facts": "The inclusive issue-date window is 2026-06-28 through 2026-09-28. There are 20 bills totaling USD 108,651.15, including both paid and unpaid bills. This is an issued-amount total, not an outstanding balance."
+  },
+  {
+    "id": 13,
+    "question": "Which bills were paid in the last 30 calendar days, including today? Give the total.",
+    "facts": "The 30-date inclusive window is 2026-08-30 through 2026-09-28. Juniper Office Supply INV-2047 was paid 2026-09-02 for USD 410.55; Sable Facilities INV-2049 was paid 2026-09-09 for USD 2,750.00. Total USD 3,160.55. Filter paid_date, not issue_date or due_date; the 2026-08-28 payment is outside the window."
+  },
+  {
+    "id": 14,
+    "question": "Which employee starts tomorrow, and are they onboarded yet?",
+    "facts": "Tomorrow relative to 2026-09-28 is 2026-09-29. Tobias Werner starts on that date and is PENDING_ONBOARDING, not yet onboarded or payroll eligible."
+  },
+  {
+    "id": 15,
+    "question": "Which employees start after today through seven days from now, inclusive?",
+    "facts": "The window is 2026-09-29 through 2026-10-05 inclusive. Two employees qualify: Tobias Werner on 2026-09-29 and Oluwafemi Adeyemi on 2026-10-05. Both are PENDING_ONBOARDING. Include the October 5 boundary; exclude Marisol, whose start date is already past."
+  },
+  {
+    "id": 16,
+    "question": "Who has a start date exactly one week ago?",
+    "facts": "One week before the 2026-09-28 snapshot is 2026-09-21. Marisol Okonjo is the employee with that recorded start date; this does not imply onboarding is complete."
+  },
+  {
+    "id": 17,
+    "question": "How many days overdue is INV-2042?",
+    "facts": "INV-2042 is unpaid and due 2026-08-25. As of 2026-09-28 it is 34 calendar days overdue. Do not measure from its issue date or the computer clock."
+  },
+  {
+    "id": 18,
+    "question": "Which unpaid bill became overdue most recently?",
+    "facts": "Pallas Metalworks INV-2059 has the latest due date among currently overdue unpaid bills: 2026-09-17. As of 2026-09-28 it is 11 calendar days overdue. Scheduled or pending-approval bills with future due dates are not overdue."
+  },
+  {
+    "id": 19,
+    "question": "Who has the highest annual salary among active employees in USD?",
+    "facts": "Rosalind Vane has the highest annual USD salary among ONBOARDED EMPLOYEE records: USD 218,000.00 per year. Exclude contractors, pending-onboarding employees and dismissed employees."
+  },
+  {
+    "id": 20,
+    "question": "Who has the lowest annual salary among active employees in USD?",
+    "facts": "Chiara Rossi has the lowest annual USD salary among ONBOARDED EMPLOYEE records: USD 72,000.00 per year. Contractor hourly rates are not comparable annual salaries."
+  },
+  {
+    "id": 21,
+    "question": "Which active contractor has the highest hourly rate in USD?",
+    "facts": "Ines Bramante has the highest active contractor USD hourly rate: USD 95.00 per hour, compared with Elias Thorne at USD 78.00 per hour. These are HOURLY amounts, not annual salaries."
+  },
+  {
+    "id": 22,
+    "question": "What is our smallest unpaid USD bill?",
+    "facts": "Juniper Office Supply INV-2060 is the smallest unpaid USD bill: USD 522.40. Its status is SCHEDULED and its due date is 2026-10-24. A smaller PAID bill must not replace it."
+  },
+  {
+    "id": 23,
+    "question": "What is our largest unpaid USD bill?",
+    "facts": "Vantage Legal LLP INV-2048 is the largest unpaid USD bill: USD 22,000.00. Its status is PENDING_APPROVAL and its due date is 2026-10-18."
+  },
+  {
+    "id": 24,
+    "question": "Which unpaid bill has the earliest due date?",
+    "facts": "Orrery Cloud Services INV-2042 has the earliest due date among unpaid bills: 2026-08-25. It is OVERDUE for USD 1,250.00. Earliest refers to due_date, not issue_date."
+  },
+  {
+    "id": 25,
+    "question": "Which vendor do we owe the most in USD, including scheduled bills?",
+    "facts": "Vantage Legal LLP has the largest outstanding USD balance: USD 22,000.00 across one unpaid bill, INV-2048. Compare vendor-level totals, excluding PAID bills and including scheduled and pending-approval bills."
+  },
+  {
+    "id": 26,
+    "question": "Which vendor has the smallest nonzero outstanding USD balance?",
+    "facts": "Juniper Office Supply has the smallest positive outstanding USD balance: USD 522.40 from scheduled bill INV-2060. Exclude PAID bills and do not interpret nonzero as overdue-only."
+  },
+  {
+    "id": 27,
+    "question": "Show the three highest annual USD salaries among active employees, highest first.",
+    "facts": "In descending salary order: Rosalind Vane, USD 218,000.00; Desmond Achebe, USD 205,000.00; Beatrix Nolan, USD 186,000.00. All are ONBOARDED employees with ANNUAL USD compensation; contractor rates and inactive employees are excluded."
+  },
+  {
+    "id": 28,
+    "question": "Who is the most recently hired active worker, including contractors?",
+    "facts": "Ines Bramante has the latest recorded start date among all ONBOARDED workers, including contractors: 2026-06-01. Her employment type is US_1099_CONTRACTOR. Freya Ostergaard is the latest employee-type hire but is not the latest worker overall."
+  },
+  {
+    "id": 29,
+    "question": "Actually, switch to Orrery Cloud. How much do we owe them?",
+    "facts": "The correction replaces Halberd with Orrery Cloud Services. Orrery has three unpaid bills totaling USD 3,480.00: INV-2042 and INV-2043 at USD 1,250.00 each, plus INV-2044 at USD 980.00 pending approval. Do not reuse Halberd's USD 8,400.00 balance.",
+    "turns": [
+      {
+        "question": "How much do we owe Halberd Components?",
+        "facts": "Halberd Components Ltd has USD 8,400.00 outstanding from pending-approval bill INV-2041. Its paid bills are excluded."
+      },
+      {
+        "question": "Actually, switch to Orrery Cloud. How much do we owe them?",
+        "facts": "The correction replaces Halberd with Orrery Cloud Services. Orrery has three unpaid bills totaling USD 3,480.00: INV-2042 and INV-2043 at USD 1,250.00 each, plus INV-2044 at USD 980.00 pending approval. Do not reuse Halberd's USD 8,400.00 balance."
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "question": "Actually, use all New York state, including Brooklyn.",
+    "facts": "The corrected state-wide scope has six employees: Marisol Okonjo, Rosalind Vane, Desmond Achebe, Saoirse Kavanagh, Beatrix Nolan and Chiara Rossi. Brooklyn adds Marisol and Chiara to the four New York City records. Marisol is pending onboarding; the other five are onboarded. No active-only filter was requested.",
+    "turns": [
+      {
+        "question": "List employees in New York City.",
+        "facts": "Four employee records have city New York: Rosalind Vane, Desmond Achebe, Saoirse Kavanagh and Beatrix Nolan. Brooklyn records are outside this initial city-only scope."
+      },
+      {
+        "question": "Actually, use all New York state, including Brooklyn.",
+        "facts": "The corrected state-wide scope has six employees: Marisol Okonjo, Rosalind Vane, Desmond Achebe, Saoirse Kavanagh, Beatrix Nolan and Chiara Rossi. Brooklyn adds Marisol and Chiara to the four New York City records. Marisol is pending onboarding; the other five are onboarded. No active-only filter was requested."
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "question": "Who is holding approval for bill vinv-9999?",
+    "facts": "No bill with internal ID vinv-9999 exists. The detail API returns 404, or a list lookup finds no match. Explain that the bill could not be found and ask the customer to check its identifier. No approver, zero amount or payment status can be inferred."
+  },
+  {
+    "id": 32,
+    "question": "Why did my payment fail?",
+    "facts": "No transaction ID or identifying payment context is supplied. Ask for the transaction reference before checking a specific payment failure. Do not assume the Kestrel Freight transaction, invent a reason or claim a lookup succeeded. There is no payment-list or invoice-to-transaction lookup endpoint."
+  },
+  {
+    "id": 33,
+    "question": "Among active EMPLOYEE records, excluding contractors, who has the most recent start date?",
+    "facts": "Freya Ostergaard has the latest start date among ONBOARDED EMPLOYEE records: 2025-10-20. Ines Bramante and Elias Thorne are contractors and are excluded from this explicitly employee-only comparison."
   }
 ]

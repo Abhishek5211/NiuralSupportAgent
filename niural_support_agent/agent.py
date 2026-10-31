@@ -10,10 +10,10 @@ from agents.stream_events import StreamEvent
 from openai import AsyncOpenAI
 from openai.types.responses import ResponseTextDeltaEvent
 
-from mock_api import MockAPI
 from mock_api.auth import EMPLOYER_ID
 from .config import Config, PACKAGE_DIR
 from .evaluate import judge_answer
+from .failures import ScenarioAPI, raise_run_fault
 from .models import ChatRequest, Outcome
 from .observability import configure_langsmith
 from .retrieval import GuideRetriever
@@ -40,7 +40,7 @@ class SupportAgent:
             model=OpenAIResponsesModel(config.model, self.client),
             model_settings=model_settings(config.model, "medium",
                                           parallel_tool_calls=config.parallel_tool_calls),
-            tools=build_tools(MockAPI(config.mock_token), self.guide),
+            tools=build_tools(ScenarioAPI(config.mock_token), self.guide),
         )
         self.histories = {}
         self.locks = {}
@@ -60,6 +60,7 @@ class SupportAgent:
             started = time.perf_counter()
             try:
                 async with asyncio.timeout(self.config.turn_timeout):
+                    raise_run_fault()
                     result = await self._run(messages, on_text, on_event)
                 self.histories[key] = result.to_input_list()
                 return Outcome(
@@ -68,8 +69,12 @@ class SupportAgent:
                     latency_ms=round((time.perf_counter() - started) * 1000, 2),
                 )
             except Exception as error:
+                details = error_details(error)
+                # Retain the correction and a safe failure notice, without replaying
+                # partially completed tool calls or streamed output from this run.
+                self.histories[key] = messages + [{"role": "assistant", "content": details["message"]}]
                 return Outcome(
-                    error=error_details(error),
+                    error=details,
                     latency_ms=round((time.perf_counter() - started) * 1000, 2),
                 )
 

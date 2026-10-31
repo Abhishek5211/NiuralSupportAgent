@@ -1,0 +1,531 @@
+{
+  "snapshot_date": "2026-09-28",
+  "original_cases_preserved": 7,
+  "added_cases": 25,
+  "total_cases": 33,
+  "case_file_sha256": "94d9141481ed7b81370c5809f9978219166ad7aa9116e3b38bbbd6059394f13a",
+  "source_sha256": {
+    "employees.json": "2b99337f97176e929bd89e2e226ba517c1874565ea030d07af4a35ea4398e6a8",
+    "payments.json": "1987e7d2c376eb434f3a543cb0cf3a7dbe8069cecc9f53746e6d8857cf3ecfe7",
+    "vendor_invoices.json": "e8ba3bf75571ab35a7e572094085003741b3558f1dcbd0ff1b7b8301a0800207",
+    "vendors.json": "8a3d416f253a12d4209f242dfcc3bf517f232aade8c3a493cd7fae38da229758"
+  },
+  "authenticated_api_cross_check": "employee lists, invoice lists, all compensation details and unknown-bill 404 matched",
+  "agent_or_judge_calls": 0,
+  "verification_checks": [
+    {
+      "id": 9,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "INV-2041",
+          840000,
+          "2026-10-05"
+        ],
+        [
+          "INV-2044",
+          98000,
+          "2026-10-05"
+        ],
+        [
+          "INV-2050",
+          640000,
+          "2026-10-06"
+        ],
+        [
+          "INV-2064",
+          430000,
+          "2026-10-10"
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          2008000
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": []
+    },
+    {
+      "id": 11,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "INV-2054",
+          298000,
+          "PAID",
+          "2026-08-10"
+        ]
+      ]
+    },
+    {
+      "id": 12,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          20,
+          10865115
+        ]
+      ]
+    },
+    {
+      "id": 13,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "INV-2047",
+          41055,
+          "2026-09-02"
+        ],
+        [
+          "INV-2049",
+          275000,
+          "2026-09-09"
+        ]
+      ]
+    },
+    {
+      "id": 13,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          316055
+        ]
+      ]
+    },
+    {
+      "id": 14,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Tobias Werner",
+          "PENDING_ONBOARDING",
+          "2026-09-29"
+        ]
+      ]
+    },
+    {
+      "id": 15,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Tobias Werner",
+          "2026-09-29",
+          "PENDING_ONBOARDING"
+        ],
+        [
+          "Oluwafemi Adeyemi",
+          "2026-10-05",
+          "PENDING_ONBOARDING"
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Marisol Okonjo",
+          "2026-09-21"
+        ]
+      ]
+    },
+    {
+      "id": 17,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          34
+        ]
+      ]
+    },
+    {
+      "id": 18,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "INV-2059",
+          "Pallas Metalworks",
+          "2026-09-17",
+          11
+        ]
+      ]
+    },
+    {
+      "id": 19,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Rosalind Vane",
+          21800000
+        ]
+      ]
+    },
+    {
+      "id": 20,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Chiara Rossi",
+          7200000
+        ]
+      ]
+    },
+    {
+      "id": 21,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Ines Bramante",
+          9500
+        ]
+      ]
+    },
+    {
+      "id": 21,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Ines Bramante",
+          9500
+        ],
+        [
+          "Elias Thorne",
+          7800
+        ]
+      ]
+    },
+    {
+      "id": 22,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "INV-2060",
+          "Juniper Office Supply",
+          52240
+        ]
+      ]
+    },
+    {
+      "id": 23,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "INV-2048",
+          "Vantage Legal LLP",
+          2200000
+        ]
+      ]
+    },
+    {
+      "id": 22,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "SCHEDULED",
+          "2026-10-24"
+        ]
+      ]
+    },
+    {
+      "id": 23,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "PENDING_APPROVAL",
+          "2026-10-18"
+        ]
+      ]
+    },
+    {
+      "id": 24,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "INV-2042",
+          "Orrery Cloud Services",
+          "2026-08-25"
+        ]
+      ]
+    },
+    {
+      "id": 25,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Vantage Legal LLP",
+          2200000
+        ]
+      ]
+    },
+    {
+      "id": 26,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Juniper Office Supply",
+          52240
+        ]
+      ]
+    },
+    {
+      "id": 27,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Rosalind Vane",
+          21800000
+        ],
+        [
+          "Desmond Achebe",
+          20500000
+        ],
+        [
+          "Beatrix Nolan",
+          18600000
+        ]
+      ]
+    },
+    {
+      "id": 28,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Ines Bramante",
+          "2026-06-01"
+        ]
+      ]
+    },
+    {
+      "id": 29,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          348000,
+          3
+        ]
+      ]
+    },
+    {
+      "id": 29,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          840000
+        ]
+      ]
+    },
+    {
+      "id": 30,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Beatrix Nolan"
+        ],
+        [
+          "Chiara Rossi"
+        ],
+        [
+          "Desmond Achebe"
+        ],
+        [
+          "Marisol Okonjo"
+        ],
+        [
+          "Rosalind Vane"
+        ],
+        [
+          "Saoirse Kavanagh"
+        ]
+      ]
+    },
+    {
+      "id": 30,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "ONBOARDED",
+          5
+        ],
+        [
+          "PENDING_ONBOARDING",
+          1
+        ]
+      ]
+    },
+    {
+      "id": 31,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": []
+    },
+    {
+      "id": 32,
+      "methods": [
+        "api_reference_contract",
+        "tool_and_prompt_contract"
+      ],
+      "verified": true,
+      "evidence": {
+        "transaction_id_supplied": false,
+        "expected": "ask for transaction ID; no invented diagnosis"
+      }
+    },
+    {
+      "id": 33,
+      "methods": [
+        "raw_json_python_decimal",
+        "sqlite_integer_cents"
+      ],
+      "verified": true,
+      "evidence": [
+        [
+          "Freya Ostergaard",
+          "2025-10-20"
+        ]
+      ]
+    }
+  ],
+  "notes": [
+    "Standalone cases 1-7, 9-27 and 31-32 are unchanged; cases 8,29,30 are live two-turn scenarios.",
+    "Case 28 now explicitly includes contractors and expects Ines; new case 33 excludes contractors and expects Freya.",
+    "Cases 29-30 retain their previous final references; fixed assistant history is replaced by generated responses.",
+    "Case 8 now tests missing-ID clarification before the user explicitly supplies txn-88403.",
+    "Per-turn setup references were checked against raw fixture values and authenticated API reads.",
+    "No live agent/judge performance or transient-fault injection result is claimed."
+  ],
+  "previous_case_file_sha256": "d7520d7584668b8b288e4b5cf139f243876626335b4c2592f3a7776b6437add0",
+  "conversation_cases": [
+    8,
+    29,
+    30
+  ],
+  "user_turn_count": 36,
+  "scope_clarification": "Case 28 includes all onboarded workers; case 33 is explicitly employee-only. Both were freshly verified with raw JSON, SQLite and authenticated API."
+}

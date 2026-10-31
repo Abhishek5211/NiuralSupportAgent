@@ -10,11 +10,11 @@ from .agent import SupportAgent
 from .config import Config
 
 
-async def chat():
+async def chat(*, verbose=False):
     config = Config.load()
     agent = SupportAgent(config)
     session_id = "cli-chat"
-    print(f"Niural support | {config.model}")
+    print(f"Niural support | {config.model}" if verbose else "Niural support")
     print("/reset clears this conversation; /quit exits. Ctrl+C also exits.")
     try:
         while True:
@@ -64,7 +64,8 @@ async def chat():
                     print(f"[tool result received] {name}", flush=True)
 
             try:
-                outcome = await agent.ask(session_id, question, on_text=show_text, on_event=show_event)
+                outcome = await agent.ask(session_id, question, on_text=show_text,
+                                          on_event=show_event if verbose else None)
             except ValidationError:
                 print("Enter a message between 1 and 8000 characters.")
                 continue
@@ -72,7 +73,7 @@ async def chat():
                 print()
             if outcome.error:
                 print(f"Error: {outcome.error['message']}")
-                if outcome.error.get("detail"):
+                if verbose and outcome.error.get("detail"):
                     print(outcome.error["detail"])
             elif not received_text and outcome.answer:
                 print(f"Assistant: {outcome.answer}")
@@ -82,9 +83,10 @@ async def chat():
 
 def main():
     parser = argparse.ArgumentParser(description="Niural streaming terminal chat; settings come from .env.")
-    parser.parse_args()
+    parser.add_argument("--verbose", action="store_true", help="Show model, tool events and error details.")
+    args = parser.parse_args()
     try:
-        asyncio.run(chat())
+        asyncio.run(chat(verbose=args.verbose))
     except KeyboardInterrupt:
         print("\nChat closed.")
     except ValidationError:
