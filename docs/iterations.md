@@ -187,3 +187,12 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
 - Case 3: 10 calculator calls became one. Case 8: four became one; rounding retries disappeared.
 - Keep the fixes. One run is not a reliability guarantee; case 7 still needed more calls.
 - Next: V5 product-guide RAG, starting with FAQ evaluation and cited section retrieval. No new eval was run.
+
+### V5: FAQ baseline before retrieval
+
+- Add 20 guide-grounded questions: common tasks, unusual wording, exact UI keywords
+  and missing-information cases. Keep facts and expected source headings separate.
+- Verified every case twice against the full guide; examples are not account facts,
+  fee amounts are not invented, and unsupported procedures require acknowledging gaps.
+- Use the same cases for semantic and later hybrid retrieval. Map headings to chunks
+  after splitting; evaluate retrieval and generation separately. No live eval ran.

@@ -1,3 +1,24 @@
+# Product-guide FAQ baseline
+
+`faq_cases.json` has 20 standalone cases: common tasks (1-10), unusual/keyword-heavy
+queries (11-18), and missing-information cases (19-20). Each has integer `id`,
+`question`, customer-facing `facts`, and `expected_sections` from
+[`PRODUCT_GUIDE.md`](../mock_api/PRODUCT_GUIDE.md). These are source headings,
+not chunk IDs; map them after chunking. Cases 19-20 cite sections that establish
+the limitation, not a benefits procedure or fee rate.
+
+Keywords include KYB, I-9 Section 2, Re-analyze, Unlinked, MM-DD-YYYY, Add exemption,
+BRW-XFEWYVQU, HAL-2026-0101, AED/USD and UI placeholders. Keep the same questions
+for semantic and later hybrid search. Reference facts/sections stay hidden from
+the answering agent. Score source-section coverage separately from answer
+correctness, grounding and citations. Accept equivalent wording and optional detail.
+
+Read the full guide and verified all 20 cases twice: first against source sections
+and factual anchors, then for exceptions, examples versus actual account records,
+currency/status distinctions and unsupported answers. This is document verification,
+not an agent score. Retrieval and FAQ runner integration are not implemented yet;
+no model, embedding or judge calls ran. Freeze these labels for the first comparison.
+
 # Arithmetic baseline
 
 `arithmetic_cases.json` contains eight self-contained hypothetical scenarios with

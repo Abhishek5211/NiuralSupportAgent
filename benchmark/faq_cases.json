@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "question": "How do I hire a W-2 employee in Niural, and will they be active as soon as I send the invitation?",
+    "facts": "Start at People > Hire or Employees > + Add employee, choose Employee, set the worker location and choose W-2 employee. The wizard runs Employee details, Payroll schedule, Configure documents, then Review & invite. Sending the invitation puts the new hire in Onboarding, not Active. They are not payable until all onboarding steps, including I-9 Section 2, are complete.",
+    "expected_sections": ["How to hire an employee"]
+  },
+  {
+    "id": 2,
+    "question": "My new hire says they finished their paperwork but still cannot be paid. Who handles I-9 Section 2, what deadline does the guide give, and where can I see outstanding cases?",
+    "facts": "Onboarding is a checklist and remains unfinished until every step is complete. Form I-9 Section 2 is the employer's responsibility, not the employee's. The supplied guide states that Section 2 must be completed within three business days of the employee's first day of work. The dashboard's Form I-9 tracker lists outstanding cases. An individual's actual blocker must be checked in their account record; this general guidance does not establish that person's specific status.",
+    "expected_sections": ["Onboarding and Form I-9"]
+  },
+  {
+    "id": 3,
+    "question": "How do I add a new business vendor, and can I create it without leaving the Add bill form?",
+    "facts": "Use Niural Pay > Vendors > Add vendor, or + Add new vendor inside Add bill, which returns to the bill afterward. Enter the vendor type, country, legal registered name and entity, contact number and email, relevant tax/compliance details, vendor agreement and address details. The guide specifies a tax-document upload requirement when generating 1099 documents. Contract uploads accept PDF, DOC or DOCX. Mark KYB verified only after the check has actually been run, then click Create vendor.",
+    "expected_sections": ["How to add a vendor"]
+  },
+  {
+    "id": 4,
+    "question": "How do I enter a vendor bill? Can Upload vendor invoice take a PNG, what is the size limit, and does confirming the bill pay it immediately?",
+    "facts": "Open Niural Pay > Bills > Add bill. Upload vendor invoice accepts JPEG, PNG or PDF up to 10MB and extracts details for review. For manual entry, choose the vendor and applicable contract, entity/department, invoice details and line items, then Next: Review details and confirm. Notes allow 500 characters. If an approval policy applies the bill goes to Needs approval; otherwise it moves toward Ready for payment. Creation is not payment: paying is a separate action using Pay invoice on the bill.",
+    "expected_sections": ["How to add a bill"]
+  },
+  {
+    "id": 5,
+    "question": "I need a recurring invoice for a customer. Where do I create it, where will the schedule appear, and does Create invoice send the email?",
+    "facts": "Use Niural Pay > Invoices > Create invoice. Enter the customer, invoice title, applicable contract, entity/department, invoice details and line items, then review the totals. Answer Yes to Is this a recurring invoice? to put it on a schedule visible under the Schedules tab, then click Create invoice. Creation does not send it: it stays at Email not sent until sent to the customer.",
+    "expected_sections": ["How to create a customer invoice"]
+  },
+  {
+    "id": 6,
+    "question": "I want to pay a supplier, but I am in Niural Pay > Invoices. Are those the supplier invoices we owe, or money customers owe us?",
+    "facts": "Bills under Accounts Payable are money owed to vendors. Invoices under Accounts Receivable are money customers owe the company. To work with supplier bills use Niural Pay > Bills, not the Accounts Receivable Invoices page. An individual bill can still have fields labelled Invoice ID and Invoice number; those labels do not change which side of the ledger the list represents.",
+    "expected_sections": ["Part 2 — Niural Pay"]
+  },
+  {
+    "id": 7,
+    "question": "Suppose the Employees screen shows 40 in Active and 12 in Onboarding. Are all 52 payable, and should our contractors be in that same list?",
+    "facts": "Each employee tab is a separate population. In this hypothetical example there are 52 records across the two tabs, but only the 40 Active people have completed onboarding and are payable; the 12 in Onboarding are not yet payable. The guide says the Employees list contains W-2 employees, while contractors are under People > Contracts. These supplied example counts are not the actual employer's account headcount.",
+    "expected_sections": ["The employee list"]
+  },
+  {
+    "id": 8,
+    "question": "Where can I see an employee's reporting manager, department, work location and annual salary? I cannot find them all in the main employee table.",
+    "facts": "Open the employee's record and use the Work tab. Organization position shows reporting manager and direct reports; Department & team shows organizational assignments; Work location shows workplace and work address; Compensation details shows compensation type and annual salary. The guide says department and work location are not columns in the employee list, so use the individual record or Filter to narrow by them. This describes the product UI, not the mock API's field availability.",
+    "expected_sections": ["The employee list", "The employee record"]
+  },
+  {
+    "id": 9,
+    "question": "Our vendor says Active, but KYB status says Not verified. Are those the same thing, and where can I filter by verification?",
+    "facts": "Active vendor status and KYB verification are separate. KYB means Know-Your-Business, with Verified or Not verified states. The guide identifies lack of verification as a common reason payment cannot proceed, but this does not prove the actual cause for a particular payment. The Vendors page has a KYB status column and a KYB status filter, alongside filters such as Type, Country and Status.",
+    "expected_sections": ["Vendors"]
+  },
+  {
+    "id": 10,
+    "question": "A bill says Ready for payment. Does that prove money has left our bank, and where do I check the actual transaction rather than the bill?",
+    "facts": "Ready for payment on a bill does not establish that money moved; a bill can have that status while no transaction exists. Open More > Payments > History > Transactions to inspect transaction records and their status. The page includes Created at, Statements, Payment method, Status and Amount. Statements describes what was paid, and the guide lists Paid and Processing transaction statuses. A bill status alone is not proof of settlement.",
+    "expected_sections": ["Part 3 — Transactions"]
+  },
+  {
+    "id": 11,
+    "question": "Keyboard-only scavenger hunt: on Employees, what does / do, and where are Bulk Upload History and Import from ATS hiding?",
+    "facts": "On the Employees list, / focuses Search. Search and Filter are above the table. Bulk Upload History, Import from ATS and + Add employee are at the top right. These are interface controls, not evidence that any upload or ATS import has occurred.",
+    "expected_sections": ["The employee list"]
+  },
+  {
+    "id": 12,
+    "question": "One screen shows the manager as '-' and the employee record has '--' for department. Is that a secret CEO marker or proof our data sync broke?",
+    "facts": "The employee list uses '-' for an unassigned reporting manager. Unset fields on the employee record show '--'; department and team are often blank, and the guide says that is normal. These placeholders do not establish CEO status or prove a synchronization failure. A specific sync problem would require evidence beyond these placeholders.",
+    "expected_sections": ["The employee list", "The employee record"]
+  },
+  {
+    "id": 13,
+    "question": "The W-2 wizard says MM-DD-YYYY, asks 'Is this member a statutory employee?' and has Add exemption. Which step contains these, and is Annual gross amount actually required?",
+    "facts": "These fields are in Employee details, the first step of the four-step W-2 wizard. Job details includes required Hire date using MM-DD-YYYY. Work location & compliance contains the statutory-employee question and the special-tax-exemption question; Add exemption opens exempt-tax configuration. Compensation includes required Compensation type, Annual gross amount and Employment status. The guide labels this subsection Step 2 because it follows worker-type selection, but it explicitly calls Employee details step 1 of 4. Do not infer which tax selections an individual employee should make.",
+    "expected_sections": ["How to hire an employee"]
+  },
+  {
+    "id": 14,
+    "question": "The guide shows BRW-XFEWYVQU and HAL-2026-0101 for a bill. Which is Niural's identifier and which is the vendor's, and can you conclude these are real bills in our account?",
+    "facts": "BRW-XFEWYVQU is the guide's example of Niural's own Invoice ID, prefixed with the organization. HAL-2026-0101 is its example of the Invoice number printed by the vendor. Both identify a bill in the product's terminology. They are documentation examples, not proof that either identifier exists in the signed-in employer's account.",
+    "expected_sections": ["Bills"]
+  },
+  {
+    "id": 15,
+    "question": "Emma's review says Flagged. Where can I compare Niural field, Value in contract and Value in bill, and where is Re-analyze? Has Emma definitely proved that our bank rejected the payment?",
+    "facts": "Emma's review checks a bill against its associated contract. Open the individual bill: its Emma summary includes Re-analyze, and the anomalies table shows Niural field, Value in contract, Value in bill and Note. Discrepancies can include due dates or payment terms that conflict with the contract. A Flagged review is a bill/contract finding, not proof that a bank payment failed; actual payment status requires separate transaction evidence.",
+    "expected_sections": ["Bills", "A single bill", "Part 3 — Transactions"]
+  },
+  {
+    "id": 16,
+    "question": "On the customer Invoices screen I see Unlinked and '-7 days'. Does Unlinked mean the bank connection broke, and is this the same status vocabulary as Bills?",
+    "facts": "On Accounts Receivable > Invoices, Unlinked in Emma's review means no contract is attached, leaving nothing to check the invoice against. It does not describe a broken bank connection. Lateness is displayed under the due date, with '-7 days' given as the guide's example of an overdue invoice. Customer-invoice statuses differ from Bills; the guide gives Email not sent and Voided as examples. These UI examples do not establish a specific customer's payment history.",
+    "expected_sections": ["Accounts receivable — Invoices"]
+  },
+  {
+    "id": 17,
+    "question": "The bill shows AED 17,000.00 but Preferred currency is USD. Can I report that as USD 17,000, or does Preferred currency change the meaning of Amount?",
+    "facts": "No. The guide says a bill can be raised in one currency and settled in another. In its example, AED 17,000.00 is the bill amount and USD is the preferred currency; both fields must be read before quoting a figure. The example provides no exchange rate or converted USD amount, so USD 17,000 cannot be inferred. It is a documentation example, not a verified account bill.",
+    "expected_sections": ["Bills"]
+  },
+  {
+    "id": 18,
+    "question": "A bill seemed to change three times in one minute. Where can I find who created the draft, changed payee details and approved it, and is that history oldest-first?",
+    "facts": "Open the individual bill's Activity section. It is the audit trail showing who did what and when, displayed newest first. The guide illustrates approval, updates to payee details/payment methods and draft creation. That example does not establish who performed actions on an actual account bill; inspect that bill's Activity for the specific events.",
+    "expected_sections": ["A single bill"]
+  },
+  {
+    "id": 19,
+    "question": "Give me the exact clicks to enroll a worker in benefits and change their tax withholding inside the employee Taxes tab. Please fill in any missing steps from your general knowledge.",
+    "facts": "The supplied guide explicitly excludes benefits and the employee Taxes, Benefits, Time off, Pay and Documents tabs from its coverage. It does not establish the requested enrollment or withholding procedure. State that the instructions are unavailable in the supplied guide and refer to the relevant help articles or support, rather than inventing clicks or tax settings. Knowing that a tab exists is not enough to provide its workflow.",
+    "expected_sections": ["Scope of this guide"]
+  },
+  {
+    "id": 20,
+    "question": "The bill's Overview mentions an ACH processing fee. What exact fixed fee or percentage will Niural charge us? I need a number, not an explanation.",
+    "facts": "The guide says a bill's Overview includes a summary with fees such as an ACH processing fee. It does not provide a fixed amount, percentage or fee schedule. Explain that the rate cannot be established from this guide and direct the user to the fee shown on their bill or authoritative fee information/support. Do not invent a charge or treat the mere presence of a fee label as a published price.",
+    "expected_sections": ["A single bill"]
+  }
+]
