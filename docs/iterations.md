@@ -81,3 +81,15 @@ flowchart LR
 - Keep cases, reference facts, model settings and judge fixed for a controlled comparison; record the Git revision.
 - Review disputed judge decisions against tool evidence without silently changing exported scores.
 - Add section-based product RAG as a separate iteration, with its own FAQ/retrieval benchmark.
+
+## Arithmetic baseline before V3
+
+- Add eight hypothetical arithmetic cases using existing account data, without
+  changing v2 agent instructions, tools, models, turn limits or the judge rubric.
+- Cases cover reserves/payroll, vendor prioritization, mean salaries and raises,
+  discounts/fees, contractor budgeting, runway, proportional allocation and margin.
+- Reference facts are checked; agent score and failure analysis are pending a
+  manually started `--suite arithmetic --name v2-arithmetic-baseline` run.
+- Capture the v2 baseline before adding sorting, arithmetic and salary-detail
+  guidance on v3. Compare identical cases and settings; retain traces and review
+  any regressions. Product-guide vector search remains a separate v4 iteration.

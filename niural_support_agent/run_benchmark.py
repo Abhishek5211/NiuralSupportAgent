@@ -14,6 +14,7 @@ from .runtime import error_details, git_metadata
 SUITES = {
     "standard": ("cases.json", "niural-account-v1"),
     "hard": ("hard_cases.json", "niural-account-hard-v1"),
+    "arithmetic": ("arithmetic_cases.json", "niural-account-arithmetic-v1"),
 }
 
 
@@ -103,7 +104,7 @@ def main():
     parser.add_argument("--description", default="Typed account queries")
     parser.add_argument("--concurrency", type=int, default=1, help="Cases running simultaneously; default 1.")
     parser.add_argument("--no-judge", action="store_true", help="Save answers/traces without paid judge calls.")
-    parser.add_argument("--suite", choices=SUITES, default="standard", help="Choose the standard or compound hard cases.")
+    parser.add_argument("--suite", choices=SUITES, default="standard", help="Choose standard, compound hard or hypothetical arithmetic cases.")
     args = parser.parse_args()
     asyncio.run(run_from_cli(args))
 

@@ -41,6 +41,18 @@ experiment. Add `--no-judge` to skip judge calls or `--concurrency 2` for parall
 cases. Model/judge choices, Git branch and commit are experiment metadata.
 No evaluation or uploads run on import. Keys are never committed.
 
+The `arithmetic` suite contains eight hypothetical budgeting, salary, contractor,
+allocation and pricing cases. Establish its baseline on unchanged `v2` before
+adding arithmetic/sorting tools on `v3`:
+
+```powershell
+python -m niural_support_agent.run_benchmark --suite arithmetic --name v2-arithmetic-baseline --description "Baseline: existing v2 account tools"
+```
+
+This runs eight answers and optional correctness judging in LangSmith. Add
+`--no-judge` to save answers and traces without judge calls. No arithmetic-suite
+agent results have been recorded yet. The notebook can select the same suite.
+
 The `standard` suite preserves legacy questions; its original payment case relied
 on an injected ID. That shortcut is removed from current code. Revise/rebaseline
 that scenario explicitly rather than overwriting a frozen LangSmith dataset.

@@ -1,3 +1,37 @@
+# Arithmetic baseline
+
+`arithmetic_cases.json` contains eight self-contained hypothetical scenarios with
+integer `id`, `question` and natural-language `facts`. Questions use the snapshot
+date already supplied by the system prompt. User-supplied budgets, hours, reserve
+rules, discounts and pricing targets are assumptions, not account facts.
+
+| Case | Coverage | Reference result |
+|---|---|---|
+| 1 | Percentage reserve, quarterly salaries and overdue bills | $163,270 required; $3,270 shortfall against the reserve |
+| 2 | Vendor totals, ascending order and whole-balance allocation | Four vendors; $9,872.40 allocated; $127.60 remaining |
+| 3 | Mean salary, conditional raises and new mean | $116,400 original mean; $68,800 annual increase; $130,160 new mean |
+| 4 | Sequential discount and fees with cent rounding | A $17,553.92 versus B $17,805.54; A saves $251.62 |
+| 5 | Hourly contractor costs and contingency | $7,205 planned cost; $295 under budget |
+| 6 | Vendor settlement, reserve and complete-month runway | Two months; $42,627.60 cash remains, $2,627.60 above reserve |
+| 7 | Proportional vendor allocation and rounding remainder | $5,000 allocated exactly; $12,770 remains overdue |
+| 8 | Contractor/vendor costs, margin versus markup | $22,226.67 for 25% margin; 25% markup gives $20,837.50 and 20% margin |
+
+Reference inputs and calculations were checked locally using raw fixture data,
+Decimal arithmetic, SQLite integer-cent totals and authenticated API reads. These
+are reference labels, not measured agent performance. No agent or judge calls
+were made while preparing this suite. No hidden context or required tool sequence
+is supplied. The agent sees only each question; reference facts go to the judge.
+
+Run manually with `--suite arithmetic --name v2-arithmetic-baseline`; the runner
+uses the separate LangSmith dataset `niural-account-arithmetic-v1`. The existing
+dataset guard rejects changed questions or facts. Keep this dataset, shared judge
+rubric, answering/judge models, model-turn limits and concurrency fixed when
+comparing unchanged v2 against v3. Preserve runtime failures and unresolved answers
+as baseline findings rather than fixing the agent during measurement. Review
+disputed judge verdicts against the stated hypothetical assumptions and arithmetic.
+The existing evaluator records answers, usage, latency, errors and correctness;
+LangSmith records model/tool traces. The score remains unmeasured until a run.
+
 # Initial correctness benchmark
 
 `hard_cases.json` is a separate eight-question compound benchmark. It leaves the
