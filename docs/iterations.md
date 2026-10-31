@@ -196,3 +196,11 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
   fee amounts are not invented, and unsupported procedures require acknowledging gaps.
 - Use the same cases for semantic and later hybrid retrieval. Map headings to chunks
   after splitting; evaluate retrieval and generation separately. No live eval ran.
+
+### V5: Markdown chunking
+
+- LangChain splits the cleaned guide at `#`/`##`; `###` subsections, tables and lists
+  stay together. No overlap or size-based split is needed for this guide.
+- 17 typed chunks; stable filename/heading IDs and heading-prefixed embedding text.
+  All 20 FAQ source labels map to chunks. Verified locally; no inference/eval ran.
+- Next: embed these chunks and store them in Chroma. Retrieval is not implemented yet.

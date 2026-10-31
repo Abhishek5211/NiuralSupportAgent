@@ -137,3 +137,16 @@ review. See [iteration findings](docs/iterations.md#v4-measured-result). Inspect
 and compare model requests, calculator/tool calls, tokens, latency and correctness.
 A calculator call may add a model turn and its schema adds input tokens; neither
 lower cost nor improved agent correctness is assumed. RAG remains deferred.
+
+## V5: product-guide chunks
+
+```powershell
+python -m niural_support_agent.chunking
+```
+
+`chunk_product_guide()` returns typed chunks with stable IDs, source, section,
+heading path and text. Split at `#`/`##`; keep `###`, tables and numbered steps
+together, without size-based splitting or overlap. `embedding_text` includes the
+heading path for retrieval context. The cleaned guide produces 17 chunks covering
+all 20 FAQ source labels. This command only previews chunks; no API key, embeddings
+or vector index is used yet.
