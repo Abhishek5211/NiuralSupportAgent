@@ -307,3 +307,17 @@ Same 34 FAQ cases (33 retrieval-scored), rubric and top 3; one run per setting.
   (customer-answers-v1); save JSON and LangSmith feedback, usage and answer latency.
 - This measures standalone answers, not multi-turn account quality. Keep component
   retrieval evaluation separate. Offline checks only; no eval/model/upload calls.
+
+### V7 follow-up: identifier and balance handling
+
+- [Live probes](../benchmark/results/v7-live-probes.json): 14 turns, 27 model requests,
+  no judge. Found invoice_id queried as invoice_number and a corrected balance
+  added by the model. Refusals/isolation/injected-text probes held in this small run.
+- Reject known invoice identifier/field mismatches with 422; printed numbers must
+  resolve to internal IDs before detail lookup. Never infer IDs by changing prefixes.
+- Invoice selects now include Decimal sums of the full filtered set by currency in
+  aggregates. Same computation as sum; no extra API/model call. PAID exclusion is
+  still explicit. New York answers must label city/state scope or clarify; exact
+  stored city matches are not all NYC boroughs. Corrections replace prior filters.
+- Offline checks only for these changes; no eval/model calls. Upload wording and
+  screenshot fallback remain separate observed issues.

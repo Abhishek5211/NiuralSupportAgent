@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from mock_api import APIError, MockAPI
 from .calculator import Calculation, calculate as run_calculation
-from .query import AccountQuery, StrictModel, query_records
+from .query import AccountQuery, StrictModel, invoice_identifier_field, query_records
 from .retrieval import GuideRetriever, IndexNotReadyError
 
 
@@ -69,6 +69,8 @@ def build_tools(account: MockAPI, guide: GuideRetriever | None = None):
         employees fields: employee_id, first_name, last_name, work_email,
         job_title, department, status, employment_type, start_date, manager_name,
         work_location (city, state, country_iso2).
+        State values are abbreviations (NY, CA); city values are stored names
+        (New York, Brooklyn). Always state city/state scope; clarify ambiguity.
         Employee compensation (amount, currency, frequency) is available: this
         tool fetches matching employee details internally when needed. Select
         compensation or its dotted fields. ANNUAL is salary; HOURLY is a rate.
@@ -82,12 +84,18 @@ def build_tools(account: MockAPI, guide: GuideRetriever | None = None):
         Vendor address contains city/country only, not a street/postal address.
         invoices fields: invoice_id, invoice_number, vendor_id, vendor_name,
         amount, currency, status, issue_date, due_date, paid_date.
+        invoice_id is the internal vinv-... ID; invoice_number is the printed INV-... number.
+        They are different fields, not interchangeable or convertible identifiers.
         A previous select may return only requested fields. Query other available
         fields when asked; an omitted field is not missing from the dataset.
         Statuses and worker types use exact uppercase API values. Text contains
         is case-insensitive; other comparisons are exact. Filters use AND.
         For outstanding balance exclude PAID, including pending/scheduled bills.
         Use aggregate_field=amount for invoice sum/average, grouped by currency.
+        Invoice selects also return aggregates: Python sums for ALL matching
+        records by currency, even if amount/currency were not selected. Use these
+        totals when listing bills plus a balance. They are outstanding balances
+        only when PAID is excluded. Never add row amounts yourself.
         order_by sorts records by scalar fields, or aggregates by group_by fields
         and value. For salary rankings filter to one currency and frequency.
         Sums and averages use Decimal; aggregate count is its contributing rows.
@@ -109,7 +117,13 @@ def build_tools(account: MockAPI, guide: GuideRetriever | None = None):
 
     @function_tool(failure_error_function=api_error)
     def get_vendor_invoice(invoice_id: str) -> str:
-        """Get invoice approval details and the pending approver. Resolve the invoice with query_account first unless its internal ID is already in context."""
+        """Get invoice approvals and the pending approver using invoice_id (vinv-...).
+
+        For a printed invoice_number (INV-...), first select its invoice_id with
+        query_account. Never convert one identifier into the other.
+        """
+        if invoice_identifier_field(invoice_id) == "invoice_number":
+            raise APIError(422, "Use an internal invoice_id (vinv-...). Resolve the printed invoice_number with query_account first.")
         return account.get_vendor_invoice(invoice_id).model_dump_json(exclude_unset=True)
 
     @function_tool(failure_error_function=api_error)

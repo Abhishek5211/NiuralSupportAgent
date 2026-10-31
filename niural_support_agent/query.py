@@ -170,7 +170,8 @@ class QueryResponse(StrictModel):
     query: AccountQuery
     matched_count: int = Field(ge=0)
     records: list[dict[str, RecordValue]] = Field(default_factory=list)
-    aggregates: list[Aggregate] = Field(default_factory=list)
+    aggregates: list[Aggregate] = Field(default_factory=list,
+        description="Computed aggregates; invoice selects also include sums of all matching bills by currency.")
     source: Source
     detail_sources: list[Source] = Field(default_factory=list)
 
@@ -220,8 +221,40 @@ def sort_rows(rows: list[dict], orders: list[QueryOrder]) -> list[dict]:
     return rows
 
 
+def invoice_identifier_field(value: str | None) -> str | None:
+    if value and value.casefold().startswith("vinv-"):
+        return "invoice_id"
+    if value and value.casefold().startswith("inv-"):
+        return "invoice_number"
+    return None
+
+
+def aggregate_rows(rows, operation, group_by, aggregate_field=None):
+    groups = defaultdict(list)
+    for row in rows:
+        groups[tuple(field_value(row, field) for field in group_by)].append(row)
+    # Do not invent a currency when grouped monetary results are empty.
+    if not group_by and not rows:
+        groups[()] = []
+    aggregates = []
+    for key, members in groups.items():
+        value = len(members)
+        if operation in {"sum", "average"}:
+            total = sum((Decimal(str(field_value(row, aggregate_field))) for row in members), Decimal(0))
+            value = format(total / len(members) if operation == "average" else total, "f")
+        aggregates.append(Aggregate(group=dict(zip(group_by, key)), value=value, count=len(members)))
+    return aggregates
+
+
 def query_records(response: APIResponse, query: AccountQuery, *, get_employee=None) -> QueryResponse:
     """Filter first, fetch required details, then aggregate or sort in Python."""
+    for condition in query.filters:
+        if condition.field in {"invoice_id", "invoice_number"}:
+            values = condition.value if isinstance(condition.value, list) else [condition.value]
+            for value in values:
+                expected = invoice_identifier_field(value)
+                if expected and expected != condition.field:
+                    raise APIError(422, f"Use {expected} for {value}, not {condition.field}. Do not convert identifiers.")
     rows = [record.model_dump(mode="json", exclude_unset=True) for record in response.data]
     list_filters = [f for f in query.filters if f.field not in COMPENSATION_FIELDS]
     rows = [row for row in rows if all(matches(row, f) for f in list_filters)]
@@ -246,7 +279,9 @@ def query_records(response: APIResponse, query: AccountQuery, *, get_employee=No
         fields = query.fields or sorted(field for field in FIELDS[query.resource]
                                         if "." not in field and field != "compensation")
         records = [{field: field_value(row, field) for field in fields} for row in rows]
+        totals = aggregate_rows(rows, "sum", ["currency"], "amount") if query.resource == "invoices" else []
         return QueryResponse(query=query, matched_count=len(rows), records=records,
+                             aggregates=totals,
                              source=response.source, detail_sources=detail_sources)
 
     group_by = list(query.group_by)
@@ -254,20 +289,7 @@ def query_records(response: APIResponse, query: AccountQuery, *, get_employee=No
         units = (["compensation.currency", "compensation.frequency"]
                  if query.resource == "employees" else ["currency"])
         group_by.extend(field for field in units if field not in group_by)
-    groups = defaultdict(list)
-    for row in rows:
-        groups[tuple(field_value(row, field) for field in group_by)].append(row)
-    # Ungrouped counts return zero on empty results. Empty grouped results/sums
-    # remain empty; never invent a currency for an account with no matching bills.
-    if not group_by and not rows:
-        groups[()] = []
-    aggregates = []
-    for key, members in groups.items():
-        value = len(members)
-        if query.operation in {"sum", "average"}:
-            total = sum((Decimal(str(field_value(row, query.aggregate_field))) for row in members), Decimal(0))
-            value = format(total / len(members) if query.operation == "average" else total, "f")
-        aggregates.append(Aggregate(group=dict(zip(group_by, key)), value=value, count=len(members)))
+    aggregates = aggregate_rows(rows, query.operation, group_by, query.aggregate_field)
     if query.operation in {"sum", "average"} and any(o.field == "value" for o in query.order_by):
         if len({tuple(a.group[field] for field in units) for a in aggregates}) > 1:
             raise APIError(422, "Filter to one currency and pay frequency before ranking monetary aggregates")
