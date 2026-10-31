@@ -69,8 +69,8 @@ docs/                  Iteration observations and supplied assignment materials
 
 Tools perform deterministic filtering/counting/summing over supplied account data.
 The snapshot date is 2026-09-28. Vendor addresses contain city/country only. Help
-articles and API-reference documents are not loaded into the agent prompt; RAG is
-deferred. See the trace and reference facts when reviewing a judge decision.
+articles are searched through the product-guide tool; API-reference documents are
+not loaded into the prompt. See traces and reference facts when reviewing a judge decision.
 
 ## V3 comparison
 
@@ -199,3 +199,23 @@ comparison is in docs/iterations.md; 0.5/0.5 is retained for best observed recal
 ```powershell
 python -m niural_support_agent.evaluate_retriever --judge --name v6-faq-hybrid --output benchmark/results/faq-hybrid-v6.json
 ```
+
+## V7: customer-facing answers and quality evaluation
+
+Chat cites readable labels such as "Product guide → How to add a bill" and
+"Halberd Components Ltd — INV-2041, bill details". Exact section IDs, API endpoints
+and source paths remain in tool outputs/traces. Answers lead with the result or
+blocker, offer a useful next step and ask one focused clarification when needed.
+
+```powershell
+python -m niural_support_agent.evaluate_answers --judge --name v7-faq-answers --output benchmark/results/faq-answers-v7.json
+```
+
+This runs the actual agent on the same 34 standalone FAQ questions, including its
+tool selection and any repeated searches. Each case gets a fresh session; judges
+see actual tool outputs and hidden minimum facts, never a substitute evidence set.
+One optional judge call grades correctness, helpfulness, grounding and citations;
+without --judge it saves answers/evidence only. JSON includes usage and latency;
+LangSmith shows four answer feedback columns. This suite does not measure multi-turn
+account conversations; those remain in the separate account benchmark.
+Retrieval settings, FAQ labels and reference facts are unchanged. No eval was run.

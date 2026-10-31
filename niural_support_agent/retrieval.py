@@ -28,6 +28,7 @@ class IndexNotReadyError(RuntimeError):
 
 
 class SearchMatch(GuideChunk):
+    citation_label: str
     distance: float
     ranking: Ranking
 
@@ -131,6 +132,7 @@ class GuideRetriever:
         for identifier, ranking in self.keywords.fuse(query, result["ids"][0]):
             text, metadata, distance = records[identifier]
             matches.append(SearchMatch(section_id=identifier, text=text, distance=distance,
+                                       citation_label=f"Product guide → {metadata['section']}",
                                        ranking=ranking, **metadata))
         return SearchResult(
             matches=matches, embedding_tokens=tokens, embedding_ms=round(embedding_ms, 2),

@@ -296,3 +296,14 @@ Same 34 FAQ cases (33 retrieval-scored), rubric and top 3; one run per setting.
   answer first, useful next step, concise natural wording, one focused clarification.
   Evaluate full-agent answers/conversations for correctness, grounding, citation
   accuracy and helpfulness on the same cases, recording latency/tokens and failures.
+
+### V7: customer-facing answers
+
+- Add readable citation_label fields; retain exact guide IDs/API references in tool
+  outputs/traces. Shared style: answer first, natural wording, useful next step,
+  focused clarification, no internal citation clutter. Retrieval stays at 0.5/0.5/top 3.
+- Add manual full-agent FAQ evaluation: same 34 questions, fresh sessions and actual
+  tool evidence. One optional judge grades correctness/helpfulness/grounding/citations
+  (customer-answers-v1); save JSON and LangSmith feedback, usage and answer latency.
+- This measures standalone answers, not multi-turn account quality. Keep component
+  retrieval evaluation separate. Offline checks only; no eval/model/upload calls.

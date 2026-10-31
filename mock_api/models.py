@@ -75,6 +75,7 @@ class Payment(Record):
 
 class Source(BaseModel):
     reference: str
+    citation_label: str = ""
     path: str
     as_of: date = SNAPSHOT_DATE
 

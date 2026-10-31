@@ -46,6 +46,13 @@ def faq_feedback(outputs):
         scores.extend({"key": key, "score": None,
                        "comment": outputs["retrieval_judgment_error"]["message"]}
                       for key in ("passage_relevance", "context_sufficiency"))
+    scores.extend(answer_feedback(outputs)["results"])
+    return {"results": scores}
+
+
+def answer_feedback(outputs):
+    """The four answer-quality scores, shared by component and full-agent runs."""
+    scores = []
     answer_fields = ("correct", "grounded", "helpful", "citations_valid")
     if "answer_judgment" in outputs:
         grade = outputs["answer_judgment"]

@@ -44,8 +44,19 @@ class MockAPI:
 
         endpoint = route.format(employer_id=self.auth.employer_id, employee_id=record_id,
                                 invoice_id=record_id, transaction_id=record_id)
+        label = {"employees.json": "Employee list", "vendors.json": "Vendor list",
+                 "vendor_invoices.json": "Vendor bills", "payments.json": "Payment status"}[filename]
+        if record_id is not None:
+            data = body["data"]
+            if filename == "employees.json":
+                label = f"{data['first_name']} {data['last_name']} — employee record"
+            elif filename == "vendor_invoices.json":
+                label = f"{data['vendor_name']} — {data['invoice_number']}, bill details"
+            elif filename == "payments.json":
+                label = f"Payment — {data['reference']}"
         return APIResponse[record_type](
             message=body["message"],
             data=body["data"],
-            source=Source(reference=endpoint, path=f"mock_api/data/{filename}", as_of=SNAPSHOT_DATE),
+            source=Source(reference=endpoint, citation_label=label,
+                          path=f"mock_api/data/{filename}", as_of=SNAPSHOT_DATE),
         )
