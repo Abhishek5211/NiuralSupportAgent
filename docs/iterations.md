@@ -220,3 +220,8 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
 - No live ingestion or eval ran. Metrics are unmeasured; similarity is not confidence,
   source hits do not establish answer quality, and judge failures remain ungraded.
   Hybrid search and reranking remain later comparisons.
+
+- Simplify retrieval scoring to deterministic recall@3, MRR@3 and binary nDCG@3
+  from existing section labels. Keep optional LLM judgments separate; no new
+  dependencies or live eval. Alternative/candidate labels measure source retrieval,
+  not whether the answer is sufficient.

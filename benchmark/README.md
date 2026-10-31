@@ -23,8 +23,10 @@ currency/status distinctions and unsupported answers. This is document verificat
 not an agent score. Retrieval is now available through evaluate_retriever; no
 model, embedding or judge calls ran during implementation. Freeze these labels for the first comparison.
 
-The retriever evaluator reports hit@1/hit@3 using any expected source label;
-coverage@3 is the fraction of listed labels found, not proof of full answer coverage.
+The retriever evaluator uses binary relevance from expected source headings:
+recall@3 measures the fraction retrieved, MRR@3 rewards the first relevant rank,
+and nDCG@3 rewards relevant sections appearing earlier. Retrieval errors score zero.
+These measure agreement with section labels, not full answer coverage.
 Alternative sections (case 23), scope limitations (19-20) and candidate evidence for
 an ambiguous typo (24) need interpretation. Optional passage judges assess actual
 relevance/sufficiency; optional answer judges assess correctness, grounding,

@@ -3,6 +3,7 @@
 import argparse
 import asyncio
 import json
+from math import log2
 from pathlib import Path
 from statistics import mean
 
@@ -24,15 +25,15 @@ class FAQCase(BaseModel):
     expected_sections: list[str] = Field(min_length=1)
 
 
-def score_sections(expected: list[str], retrieved: list[str]) -> dict:
-    retrieved = retrieved[:3]
+def score_sections(expected: list[str], retrieved: list[str], k: int = 3) -> dict:
     expected_set = set(expected)
-    ranks = [rank for rank, section in enumerate(retrieved, 1) if section in expected_set]
+    ranks = [rank for rank, section in enumerate(retrieved[:k], 1) if section in expected_set]
+    dcg = sum(1 / log2(rank + 1) for rank in ranks)
+    ideal_dcg = sum(1 / log2(rank + 1) for rank in range(1, min(k, len(expected_set)) + 1))
     return {
-        "hit_at_1": bool(ranks and ranks[0] == 1),
-        "hit_at_3": bool(ranks),
-        "first_relevant_rank": ranks[0] if ranks else None,
-        "section_coverage_at_3": len(expected_set.intersection(retrieved)) / len(expected_set),
+        f"recall_at_{k}": len(expected_set.intersection(retrieved[:k])) / len(expected_set),
+        "reciprocal_rank": 1 / ranks[0] if ranks else 0.0,
+        f"ndcg_at_{k}": dcg / ideal_dcg,
     }
 
 
@@ -94,12 +95,13 @@ async def evaluate(args):
                 for case in cases:
                     row = await evaluate_case(case)
                     rows.append(row)
-                    print(f"Case {case.id}: hit@3={row.get('metrics', {}).get('hit_at_3', 'error')}")
+                    print(f"Case {case.id}: recall@3={row.get('metrics', {}).get('recall_at_3', 'error')}")
             successful = [row for row in rows if "retrieval" in row]
             summary = {
                 "cases": len(rows), "retrieval_errors": len(rows) - len(successful),
-                "hit_at_1": sum(row["metrics"]["hit_at_1"] for row in successful) / len(rows),
-                "hit_at_3": sum(row["metrics"]["hit_at_3"] for row in successful) / len(rows),
+                "recall_at_3": sum(row["metrics"]["recall_at_3"] for row in successful) / len(rows),
+                "mrr_at_3": sum(row["metrics"]["reciprocal_rank"] for row in successful) / len(rows),
+                "ndcg_at_3": sum(row["metrics"]["ndcg_at_3"] for row in successful) / len(rows),
                 "mean_latency_ms": mean(row["retrieval"]["latency_ms"] for row in successful) if successful else None,
                 "embedding_tokens": sum(row["retrieval"]["embedding_tokens"] for row in successful),
             }
@@ -115,7 +117,7 @@ async def evaluate(args):
                     for field in ("correct", "grounded", "helpful", "citations_valid"):
                         summary["answer_" + field] = mean(g[field] for g in answer_grades) if answer_grades else None
             report = {"metadata": {**git_metadata(), **retriever.metadata,
-                                   "generate": args.generate, "judge": args.judge,
+                                   "retrieval_k": 3, "generate": args.generate, "judge": args.judge,
                                    "agent_model": config.model, "judge_model": config.judge_model},
                       "summary": summary, "cases": rows}
             args.output.parent.mkdir(parents=True, exist_ok=True)

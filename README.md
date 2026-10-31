@@ -166,8 +166,8 @@ Unchanged builds make no embedding calls. Rebuild after guide/model changes and
 restart chat. Missing/stale indexes return a tool error; account tools still work.
 The agent gains search_product_guide as its sixth tool.
 
-Evaluation runs 30 query embeddings and saves matches, distances, source hits/rank/
-coverage, tokens and timings. `--judge` adds passage relevance and sufficiency;
+Evaluation runs 30 query embeddings and saves matches, distances, recall@3,
+MRR@3, nDCG@3, tokens and timings. `--judge` adds passage relevance and sufficiency;
 `--generate` adds passage-based answers. Together they also judge correctness,
 grounding, helpfulness and citations: 30 generation and 60 judge requests for 30
 successful cases. Gold facts never reach the generator. This evaluates the RAG
