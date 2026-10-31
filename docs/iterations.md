@@ -1,126 +1,83 @@
-# Iterations tracked with Git
+# Support Agent Iterations
 
-## Baseline: main / v1
+- **Goal:** Answer account questions accurately using authenticated, read-only tools.
+- **Versions:** Git branches `v1` (baseline) and `v2` (current).
+- **Latest measured result:** V2 hard benchmark **7/8 correct (87.5%)**. [Hard export](../benchmark/results/v2-hard-8e6c80b8.csv)
+- **Data snapshot:** 2026-09-28; all counts and dates below use this snapshot.
 
-The first commit preserves the earlier raw-list tools, provider configuration,
-prompt and evaluator. Only package paths and the terminal adapter were normalized.
-The model counted records itself and was observed returning incorrect headcount.
-There is no complete, comparable baseline benchmark score.
+## V1 - Raw API tools
 
-## Current: v2
+```mermaid
+flowchart LR
+    U[Customer] --> A[Agent and conversation history]
+    D[Product guide and API reference] --> A
+    A --> T[Six raw API tools]
+    T --> M[Authenticated mock API]
+    M --> A
+    A --> R[Answer and model-computed totals]
+```
 
-The next commit adds constrained Pydantic queries with Python filtering and exact
-invoice sums, complete list-field access, streaming CLI, local-only configuration,
-and optional LangSmith experiments. Eight compound questions are separately
-verified using raw JSON, SQLite and the authenticated API/query engine.
+- **Problem:** The model counted and summed raw records itself; a recorded headcount observation was 17 instead of 16 active workers.
+- **Approach:** Established a baseline with employee, vendor, bill and transaction list/detail tools.
+- **Result:** No complete V1 benchmark score is available; the counting observation is not an aggregate accuracy score.
+- **Scope correction:** The expected active population is **14 employees + 2 contractors = 16 workers**, not 16 employee-type records. [Standard case 1](../benchmark/cases.json)
+- **Solution carried into V2:** Move filtering, counting and monetary sums into validated Python execution.
 
-Historical experiment v2-query-tools-604925f7 reported 6/8. Human review found one
-unresolved New York clarification and one judge false rejection: payment details
-were supported by the tool but absent from the short reference answer. Traces
-confirmed Python computed the headcount and overdue sum. The original payment
-scenario had an injected transaction reference; it only tested an already
-identified payment. Current code never supplies context based on a question ID.
+## V2 - Structured account queries
 
-The vendor-contact follow-up exposed an incomplete tool field catalog. That was
-corrected without changing source data. Hard cases now cover contacts, report
-relationships, compensation lookups, approval state and upcoming bills. Their
-reference facts were checked three independent ways; no hard-suite score is claimed.
+```mermaid
+flowchart LR
+    U[CLI or benchmark] --> A[OpenAI Agent and history]
+    A --> Q[Pydantic query: select, count, sum]
+    Q --> P[Python filters and Decimal totals]
+    P --> M[Authenticated mock API]
+    A --> T[Employee, bill and payment detail tools]
+    T --> M
+    M --> A
+    A --> R[Answer with source references]
+    A -. traces .-> L[LangSmith]
+    R -. benchmark only .-> J[Judge and reference facts]
+```
 
-Compare `git diff v1..v2`. Use a new branch and
-LangSmith experiment for the next change, keeping cases, rubric and model settings
-fixed within a comparison. Record a failure trace, targeted change, regressions
-and keep/rollback decision. Changing judge inputs or scenario context requires
-an explicitly revised evaluation before comparing scores.
+- **Problem -> solution:** Counting/sum errors -> `query_account` uses validated filters, Python counts and Decimal sums grouped by currency.
+- **Problem -> solution:** Vendor contacts and employee fields were omitted from the tool catalog -> expose available list fields and re-query omitted projections on follow-up.
+- **Problem -> solution:** Difficult interaction/debugging -> streaming CLI, tool events and optional LangSmith traces/experiments.
+- **Problem -> solution:** Basic cases missed compound failures -> add eight self-contained hard questions with independently verified reference facts. [Hard cases](../benchmark/hard_cases.json), [verification notes](../benchmark/README.md)
+- **Current scope:** Account tools only; product-document RAG is planned and is not part of these benchmark results.
 
-## Imported working notes
+### Historical standard benchmark
 
-# V2 experiment: constrained account queries
+- **Result:** **6/8 correct (75%)**, as exported; experiment `v2-query-tools-604925f7`. [Standard export](../benchmark/results/v2-query-tools-604925f7.csv)
+- **Case 2:** Asked whether New York meant city or state; scored unresolved because no factual answer was provided.
+- **Case 8:** Answered the freight failure correctly; prior review identified a judge false rejection because supported extra details exceeded the short reference answer. Preserve the exported 6/8 score.
+- **Comparison limit:** Case 8 received an injected transaction ID. Current code no longer injects context based on case ID, so this historical scenario must be explicitly rebaselined before comparison.
 
-Parent: v1, preserved unchanged.
+### New hard benchmark
 
-Observed v1 failure: the model answered 17 active employees. The supplied roster
-has 14 ONBOARDED employees and 2 ONBOARDED contractors (16 active workers).
-Diagnosis: raw list tools left counting to the model. Pydantic record validation
-alone cannot check an answer's arithmetic.
+- **Result:** **7/8 correct (87.5%)**; experiment `v2-hard-8e6c80b8`; one repetition per case. [Hard export](../benchmark/results/v2-hard-8e6c80b8.csv)
+- **Recorded answering model:** `gpt-5.4-mini-2026-03-17`.
+- **Recorded judge:** `gpt-4.1-mini-2025-04-14`; this is the exported run's judge, regardless of current configuration defaults.
+- **Execution:** All eight runs completed successfully; the one failed correctness verdict was not a runtime error.
+- **Mean exported latency:** **19.44 seconds per case**.
 
-Hypothesis: a typed query executed by Python removes manual counting/summing
-and reduces the records sent to the model. The model still chooses filters and
-writes the final answer, so semantic mistakes remain possible.
+| Case | Coverage | Exported result |
+|---|---|---|
+| 1 | Vendor contacts, filters, unpaid/overdue totals | Pass; USD 15,792.40 unpaid and USD 15,270.00 overdue |
+| 2 | Employee filters, five salary lookups, salary ordering | Fail; correct five-person roster, but salaries and ordering omitted |
+| 3 | Similar bills, paid/unpaid distinction, current approver | Pass; USD 2,750.00 still owed for the pair; USD 8,400.00 awaiting Beatrix |
+| 4 | Corrected NY-state scope, onboarding, stored CA contractor location | Pass; five active employees, no active contractors and one pending hire in NY |
+| 5 | Direct versus one-level-indirect reporting relationships | Pass; nine direct reports, one indirect; six active employees and two active contractors |
+| 6 | Manager/team lookup, onboarding and dismissal dates | Pass; Lucas has zero other onboarded teammates under Desmond |
+| 7 | Missing manager assignments and direct-report counts | Pass; three onboarded employees with no assigned manager |
+| 8 | Inclusive due-date window, contacts, approval owners and totals | Pass; USD 9,380.00 pending approval + USD 10,700.00 scheduled = USD 20,080.00 |
 
-Change: one reusable query tool (select/count/sum, filters, grouping), Pydantic
-arguments/results, explicit JSON output and corresponding prompt instructions.
-Employee, invoice and payment detail lookups remain available. Auth, fixtures,
-reference facts, judge rubric, streaming and conversation isolation are unchanged.
+- **Remaining problem:** Case 2 claimed salary was unavailable after using list data; compensation is available through employee detail records. [Employee detail API](../mock_api/API_DOCUMENTATION.md#2-get-employee)
+- **Proposed solution:** Describe compensation explicitly in `get_employee` guidance; require detail lookups for salary requests, then order the retrieved annual USD amounts. This fix has not been benchmarked.
+- **Measurement limit:** The standard and hard suites contain different questions. Their 75% and 87.5% scores do not establish a before/after improvement; no comparable V1 suite score exists.
 
-Model configuration subsequently updated at the user's request: OpenAI agent
-`gpt-5.4-mini-2026-03-17` with medium reasoning, optional judge
-`gpt-5.4-2026-03-05` with low reasoning. Both have a 4096 output/reasoning token cap.
-OpenAI model listing succeeded (HTTP 200) and included both pinned versions;
-inference access/quota and end-to-end behavior have not been exercised.
-The judge now uses native Pydantic structured output on OpenAI. V1 code remains
-unchanged. Match model/reasoning settings to isolate the query-tool improvement.
+## Next iteration
 
-Acceptance: recover the correct headcount breakdown; preserve the other seven
-benchmark answers. No incorrect cross-currency totals or silent zero on API errors.
-Use the same benchmark/rubric and matching model settings for a comparison.
-
-Agent answers and judge outcomes: not run. No model quota spent implementing v2.
-No new tests, tracing or manifests. Manual one-case evaluation is in v2.ipynb.
-Retain/rollback: inconclusive until the user runs the notebook and reviews results.
-
-Local fixture checks (not agent benchmark scores): headcount returned 14 employees
-and 2 contractors, NY state returned six names, Orrery unpaid balance returned
-USD 3480, and the overdue-date filter returned five bills. SDK tool invocation
-returned valid JSON for all four tools. Invalid query / blank token / wrong
-employer / missing record returned 422 / 401 / 403 / 404. Python and notebook cells
-parsed successfully. No end-to-end answer quality or regression claim is made.
-
-The notebook's stale v1 imports were corrected to v2. A local schema inspection
-cell shows the function definitions generated by the SDK. All four tools are
-loaded upfront; deferred tool loading is not enabled.
-
-Configuration simplified at the user's request: v2 uses OpenAI only and reads
-only .env. Parent files, process-environment overrides, dotenv
-interpolation, provider routing and provider-specific prompt trimming are removed.
-The user will copy the credentials into that file. No model calls were run for
-this configuration cleanup.
-
-Streaming chat moved to `python -m niural_support_agent` after the
-notebook input loop did not work for the user. The CLI streams text and tool
-events, supports reset/exit, and closes its client on exit. The notebook retains
-manual evaluation and its existing results. No judge/model calls were run while
-implementing this interface change.
-
-Agent cleanup: removed product-guide and API-reference loading from the prompt.
-The agent now has account-tool instructions only. Model settings, usage and safe
-errors are in runtime.py; optional judging is in evaluate.py. SupportAgent.judge
-delegates there so existing notebook cells keep working. Streaming CLI, account
-tools, benchmark inputs and local-only .env loading are preserved. No model/judge
-calls were run for this cleanup.
-
-LangSmith integration added at the user's request. Config reads LangSmith settings
-from v2/.env. An explicit batch command runs the same eight cases once, with
-optional judging, and records one experiment containing answers, reference facts,
-scores and execution traces. Default concurrency is one; there are no model
-retries or repetitions. Dataset contents are checked before reusing an existing
-dataset. Model versions/configuration are recorded on each experiment. No dataset,
-trace or evaluation was uploaded/run while implementing this integration; live
-LangSmith delivery is not yet verified.
-
-Field coverage correction: a real chat exposed that query_account allowed only
-vendor_id/name/default_currency, although the supplied endpoint also has email,
-address, status and payment terms/method. The model incorrectly described that
-projection as the entire dataset. Expanded the v2 field catalog to the documented
-list fields across vendors, employees and invoices; derive the schema enum from
-the catalog. Whole address/location selection is supported, with scalar paths for
-filters/grouping. Prompt guidance requires re-querying omitted fields on follow-up.
-No source data, shared API implementation or benchmark labels were changed.
-
-The separate hard benchmark now has eight self-contained cases. Four additions
-cover reporting graphs, inactive teammates, missing manager assignments and
-upcoming payables. All new reference facts were verified by three independent
-methods. Added explicit suite selection to the manual batch runner. Removed the
-case-ID-specific payment hint so a new case numbered 8 cannot inherit unrelated
-freight context. Original source/remote benchmark records were not changed;
-legacy seeded payment results require a separate scenario/version before reuse.
-No model or judge calls or remote uploads were performed for this addition.
+- Fix the salary-detail lookup failure and rerun hard case 2, then the full hard suite for regressions.
+- Keep cases, reference facts, model settings and judge fixed for a controlled comparison; record the Git revision.
+- Review disputed judge decisions against tool evidence without silently changing exported scores.
+- Add section-based product RAG as a separate iteration, with its own FAQ/retrieval benchmark.
