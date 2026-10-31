@@ -10,3 +10,4 @@ __pycache__/
 .jupyter/
 build/
 dist/
+.chroma/

@@ -20,8 +20,17 @@ Case 23 lists alternative supporting sections; either establishes the same fact.
 Read the full guide and verified the original 20 cases twice: first against source sections
 and factual anchors, then for exceptions, examples versus actual account records,
 currency/status distinctions and unsupported answers. This is document verification,
-not an agent score. Retrieval and FAQ runner integration are not implemented yet;
-no model, embedding or judge calls ran. Freeze these labels for the first comparison.
+not an agent score. Retrieval is now available through evaluate_retriever; no
+model, embedding or judge calls ran during implementation. Freeze these labels for the first comparison.
+
+The retriever evaluator reports hit@1/hit@3 using any expected source label;
+coverage@3 is the fraction of listed labels found, not proof of full answer coverage.
+Alternative sections (case 23), scope limitations (19-20) and candidate evidence for
+an ambiguous typo (24) need interpretation. Optional passage judges assess actual
+relevance/sufficiency; optional answer judges assess correctness, grounding,
+helpfulness and citations. Grades can be wrong: inspect reasons and traces. No
+hard similarity threshold is assumed. Judge failures are unavailable, not failures
+of the answer. Results go to one explicitly named JSON file, with no manifest.
 
 # Arithmetic baseline
 

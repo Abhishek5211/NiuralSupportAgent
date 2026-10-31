@@ -16,6 +16,7 @@ from .config import Config, PACKAGE_DIR
 from .evaluate import judge_answer
 from .models import ChatRequest, Outcome
 from .observability import configure_langsmith
+from .retrieval import GuideRetriever
 from .runtime import error_details, model_settings, usage_dict
 from .tools import build_tools
 
@@ -37,7 +38,7 @@ class SupportAgent:
             model=OpenAIResponsesModel(config.model, self.client),
             model_settings=model_settings(config.model, "medium",
                                           parallel_tool_calls=config.parallel_tool_calls),
-            tools=build_tools(MockAPI(config.mock_token)),
+            tools=build_tools(MockAPI(config.mock_token), GuideRetriever(config, self.client)),
         )
         self.histories = {}
         self.locks = {}

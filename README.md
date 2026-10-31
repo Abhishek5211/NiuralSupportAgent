@@ -150,3 +150,29 @@ together, without size-based splitting or overlap. `embedding_text` includes the
 heading path for retrieval context. The cleaned guide produces 17 chunks covering
 all 20 FAQ source labels. This command only previews chunks; no API key, embeddings
 or vector index is used yet.
+
+## V5: retrieval and evaluation
+
+```powershell
+python -m niural_support_agent.retrieval build
+python -m niural_support_agent.retrieval search "what are columns of bill?"
+python -m niural_support_agent.evaluate_retriever --output benchmark/results/retriever-v5.json
+python -m niural_support_agent.evaluate_retriever --generate --judge --output benchmark/results/rag-v5.json
+```
+
+Build embeds the 17 sections with root `.env`'s OPENAI_API_KEY and EMBEDDING_MODEL
+(default text-embedding-3-small), persisting a cosine index in ignored `.chroma/`.
+Unchanged builds make no embedding calls. Rebuild after guide/model changes and
+restart chat. Missing/stale indexes return a tool error; account tools still work.
+The agent gains search_product_guide as its sixth tool.
+
+Evaluation runs 30 query embeddings and saves matches, distances, source hits/rank/
+coverage, tokens and timings. `--judge` adds passage relevance and sufficiency;
+`--generate` adds passage-based answers. Together they also judge correctness,
+grounding, helpfulness and citations: 30 generation and 60 judge requests for 30
+successful cases. Gold facts never reach the generator. This evaluates the RAG
+component, not full account conversations. LangSmith follows existing settings.
+
+Verdicts, reasons and usage share one JSON report; existing files are not overwritten.
+Judge failures remain ungraded. Source hits and cosine distances do not establish
+answer correctness. No live ingestion/eval has run; hybrid search remains deferred.

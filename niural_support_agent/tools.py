@@ -9,6 +9,7 @@ from pydantic import ValidationError
 from mock_api import APIError, MockAPI
 from .calculator import Calculation, calculate as run_calculation
 from .query import AccountQuery, StrictModel, query_records
+from .retrieval import GuideRetriever, IndexNotReadyError
 
 
 class ToolError(StrictModel):
@@ -30,7 +31,7 @@ def api_error(context, error):
                    if isinstance(cause, ValidationError) else
                    "Invalid arguments. Use the fields, operators and values permitted by the tool schema.")
     else:
-        status, message = 500, "Account tool failed. No result was produced."
+        status, message = 500, "Tool failed. No result was produced."
     return ErrorResponse(error=ToolError(status=status, message=message)).model_dump_json()
 
 
@@ -59,7 +60,7 @@ def calculator_error(context, error):
     return ErrorResponse(error=ToolError(status=422, message=message)).model_dump_json()
 
 
-def build_tools(account: MockAPI):
+def build_tools(account: MockAPI, guide: GuideRetriever | None = None):
     @function_tool(failure_error_function=api_error)
     def query_account(query: AccountQuery) -> str:
         """Filter, select, count, sum, average and sort authenticated account data.
@@ -139,4 +140,22 @@ def build_tools(account: MockAPI):
         except ValueError as error:
             return ErrorResponse(error=ToolError(status=422, message=str(error))).model_dump_json()
 
-    return [query_account, get_employee, get_vendor_invoice, get_payment_status, calculate]
+    tools = [query_account, get_employee, get_vendor_invoice, get_payment_status, calculate]
+    if guide is not None:
+        @function_tool(failure_error_function=api_error)
+        async def search_product_guide(query: str) -> str:
+            """Find product instructions, UI labels and explanations in Niural's guide.
+
+            Use for how-to and product questions; include the subject in follow-ups.
+            Account-specific facts require account tools. Results include section IDs,
+            headings and excerpts for citations. Lower cosine distance is closer,
+            not a confidence score. Missing evidence requires clarification or support.
+            """
+            try:
+                return (await guide.search(query)).model_dump_json()
+            except IndexNotReadyError as error:
+                return ErrorResponse(error=ToolError(status=503, message=str(error))).model_dump_json()
+            except ValueError as error:
+                return ErrorResponse(error=ToolError(status=422, message=str(error))).model_dump_json()
+        tools.append(search_product_guide)
+    return tools

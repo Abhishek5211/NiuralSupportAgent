@@ -207,3 +207,16 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
 
 - Extend the FAQ set to 30 with ten short queries (21-30), including Unlinked,
   KYB, DOCX uploads and an ambiguous i 99 typo. Source-checked; original 20 unchanged.
+
+### V5: vector retrieval and manual evaluation
+
+- OpenAI embeddings + persistent local Chroma cosine search; reuse the 17 chunks.
+  Build is explicit, unchanged indexes are reused, and stale/missing indexes fail
+  clearly. Add search_product_guide; account data remains authoritative for accounts.
+- Add manual retrieval evaluation for all 30 FAQs: source hits/rank/coverage, timings,
+  embedding usage and full results. Optional LLM judges grade passage relevance and
+  sufficiency; optional passage-based answers are judged separately for correctness,
+  grounding, helpfulness and citations. Gold facts never reach the generator.
+- No live ingestion or eval ran. Metrics are unmeasured; similarity is not confidence,
+  source hits do not establish answer quality, and judge failures remain ungraded.
+  Hybrid search and reranking remain later comparisons.
