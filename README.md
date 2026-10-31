@@ -187,7 +187,9 @@ answer correctness. See docs/iterations.md for recorded experiments and limitati
 
 BM25 keywords and Chroma vectors rank all 17 unchanged sections, then
 [reciprocal rank fusion](https://www.elastic.co/docs/reference/elasticsearch/rest-apis/reciprocal-rank-fusion)
-(equal weights, constant 60) returns the top 3. Keyword tokens are
+(constant 60) returns the top 3. Edit VECTOR_WEIGHT and KEYWORD_WEIGHT in
+niural_support_agent/hybrid.py (defaults 0.5 each); rerun the CLI after editing.
+Weights are recorded in JSON and LangSmith experiment metadata. Keyword tokens are
 case-folded Unicode words; no stemming or benchmark-specific rules. Ranking details
 are saved per match; cosine distance remains a vector-only diagnostic.
 Reuse the existing Chroma index; BM25 builds locally at startup. One query embedding

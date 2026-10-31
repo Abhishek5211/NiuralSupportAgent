@@ -270,3 +270,7 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
 - Same FAQ cases, behavior rubric, generator and judge; no benchmark-specific tuning.
   Compare against the v5 saved run, retaining known judge caveats. Offline checks
   only; no live embeddings, generator/judge calls or evaluation run.
+
+- Expose VECTOR_WEIGHT/KEYWORD_WEIGHT as hybrid.py constants (0.5 each). Save both
+  in eval metadata; equal defaults preserve ranking and halve prior raw RRF scores.
+  Same benchmark/top 3; no .env changes or live evaluation run.

@@ -10,6 +10,8 @@ from .chunking import GuideChunk
 
 TOP_K = 3
 RRF_CONSTANT = 60
+VECTOR_WEIGHT = 0.5
+KEYWORD_WEIGHT = 0.5
 
 
 def tokenize(text: str) -> list[str]:
@@ -38,9 +40,9 @@ class KeywordIndex:
         rankings = {}
         for vector_rank, key in enumerate(vector_ids, 1):
             keyword_rank = keyword_ranks.get(key)
-            score = 1 / (RRF_CONSTANT + vector_rank)
+            score = VECTOR_WEIGHT / (RRF_CONSTANT + vector_rank)
             if keyword_rank is not None:
-                score += 1 / (RRF_CONSTANT + keyword_rank)
+                score += KEYWORD_WEIGHT / (RRF_CONSTANT + keyword_rank)
             rankings[key] = Ranking(vector_rank=vector_rank, keyword_rank=keyword_rank,
                                     keyword_score=scores[key], rrf_score=score)
         # On a fusion tie, keep vector order. No keyword matches means vector-only order.

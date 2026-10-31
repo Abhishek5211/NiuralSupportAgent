@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 from .chunking import GuideChunk, chunk_product_guide
 from .config import Config, PROJECT_DIR
-from .hybrid import KeywordIndex, Ranking, RRF_CONSTANT
+from .hybrid import KeywordIndex, Ranking, RRF_CONSTANT, VECTOR_WEIGHT, KEYWORD_WEIGHT
 
 
 INDEX_DIR = PROJECT_DIR / ".chroma"
@@ -48,6 +48,7 @@ class GuideRetriever:
         self.chunks = chunk_product_guide()
         self.keywords = KeywordIndex(self.chunks)
         self.search_metadata = {"retrieval_method": "hybrid-bm25-rrf", "rrf_constant": RRF_CONSTANT,
+                                "vector_weight": VECTOR_WEIGHT, "keyword_weight": KEYWORD_WEIGHT,
                                 "candidate_count": len(self.chunks), "keyword_tokenizer": "unicode-word-casefold"}
         content = json.dumps([c.embedding_text for c in self.chunks], ensure_ascii=False)
         self.metadata = {
