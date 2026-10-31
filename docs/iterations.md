@@ -240,3 +240,11 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
   coverage credit. Case 23 uses alternatives; remove unnecessary labels in 15/27.
   Labels create a new LangSmith snapshot (rubric faq-evidence-v2); old scores are not
   directly comparable. Retrieval/generation unchanged; no live eval or upload ran.
+
+- Add expected_behavior and minimum required_facts to all 34 FAQs. Judges use only
+  this checklist; optional reference prose stays out of judge/generator prompts.
+  Retrieval sufficiency follows per-fact support with evidence, including valid No,
+  clarification and unavailable responses. Cases 8/15 drop extra source requirements;
+  23/25/27 accept clarification or conditional guidance. Case 24 needs no source and
+  is unscored for retrieval (33 labeled cases). New rubric: faq-behavior-v3.
+  Retrieval and generator unchanged. Offline checks only; no live eval/upload ran.

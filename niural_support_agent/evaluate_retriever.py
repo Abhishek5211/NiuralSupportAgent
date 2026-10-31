@@ -6,6 +6,7 @@ import json
 from math import log2
 from pathlib import Path
 from statistics import mean
+from typing import Literal
 
 from langsmith import traceable, tracing_context
 from openai import AsyncOpenAI
@@ -23,6 +24,8 @@ class FAQCase(BaseModel):
     id: int
     question: str
     facts: str
+    expected_behavior: Literal["answer", "clarify", "unavailable", "answer_or_clarify"]
+    required_facts: list[str] = Field(min_length=1)
     required_sections: list[str] = Field(default_factory=list)
     alternative_sections: list[list[str]] = Field(default_factory=list)
 
@@ -33,12 +36,16 @@ class FAQCase(BaseModel):
 
     @model_validator(mode="after")
     def validate_sections(self):
-        if not self.section_groups or any(not group for group in self.section_groups):
-            raise ValueError("Provide required sections or nonempty alternative groups")
+        if any(not group for group in self.section_groups):
+            raise ValueError("Alternative groups cannot be empty")
+        if not self.section_groups and self.expected_behavior != "clarify":
+            raise ValueError("Only clarification-only cases may omit source labels")
         return self
 
 
 def score_sections(groups: list[list[str]], retrieved: list[str], k: int = 3) -> dict:
+    if not groups:
+        return {f"recall_at_{k}": None, "reciprocal_rank": None, f"ndcg_at_{k}": None}
     group_by_section = {section: index for index, group in enumerate(groups) for section in group}
     found, ranks = set(), []
     for rank, section in enumerate(retrieved[:k], 1):
@@ -76,6 +83,7 @@ async def evaluate(args):
             @traceable(name="Product guide FAQ case")
             async def evaluate_case(case):
                 row = {"id": case.id, "question": case.question,
+                       "expected_behavior": case.expected_behavior, "required_facts": case.required_facts,
                        "required_sections": case.required_sections,
                        "alternative_sections": case.alternative_sections}
                 try:
@@ -94,7 +102,7 @@ async def evaluate(args):
                 tasks = []
                 if args.judge:
                     tasks.append(("retrieval_judgment", evaluator.judge_retrieval,
-                                  [case.question, case.facts, passages]))
+                                  [case.question, case.expected_behavior, case.required_facts, passages]))
                 if args.generate:
                     tasks.append(("generation", evaluator.generate, [case.question, passages]))
                 for name, function, arguments in tasks:
@@ -107,7 +115,8 @@ async def evaluate(args):
                 if args.judge and "generation" in row:
                     try:
                         verdict, usage = await evaluator.judge_answer(
-                            case.question, case.facts, passages, row["generation"])
+                            case.question, case.expected_behavior, case.required_facts,
+                            passages, row["generation"])
                         row["answer_judgment"], row["answer_judgment_usage"] = verdict, usage
                     except Exception as error:
                         row["answer_judgment_error"] = error_details(error)
@@ -115,7 +124,7 @@ async def evaluate(args):
 
             metadata = {**git_metadata(), **retriever.metadata, "retrieval_k": 3,
                         "generate": args.generate, "judge": args.judge,
-                        "evaluation_rubric": "faq-evidence-v2",
+                        "evaluation_rubric": "faq-behavior-v3",
                         "agent_model": config.model, "judge_model": config.judge_model}
             rows = []
             cases_by_id = {case.id: case for case in cases}
@@ -145,11 +154,13 @@ async def evaluate(args):
                         await target({"id": case.id, "question": case.question})
             rows.sort(key=lambda row: row["id"])
             successful = [row for row in rows if "retrieval" in row]
+            scored = [row for row in rows if row["required_sections"] or row["alternative_sections"]]
             summary = {
                 "cases": len(rows), "retrieval_errors": len(rows) - len(successful),
-                "recall_at_3": sum(row["metrics"]["recall_at_3"] for row in successful) / len(rows),
-                "mrr_at_3": sum(row["metrics"]["reciprocal_rank"] for row in successful) / len(rows),
-                "ndcg_at_3": sum(row["metrics"]["ndcg_at_3"] for row in successful) / len(rows),
+                "retrieval_scored_cases": len(scored),
+                **{key: mean(row.get("metrics", {}).get(field, 0.0) for row in scored) if scored else None
+                   for key, field in (("recall_at_3", "recall_at_3"), ("mrr_at_3", "reciprocal_rank"),
+                                      ("ndcg_at_3", "ndcg_at_3"))},
                 "mean_latency_ms": mean(row["retrieval"]["latency_ms"] for row in successful) if successful else None,
                 "embedding_tokens": sum(row["retrieval"]["embedding_tokens"] for row in successful),
             }

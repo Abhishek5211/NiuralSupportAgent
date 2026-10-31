@@ -8,6 +8,7 @@ from statistics import mean
 def ensure_faq_dataset(client, cases):
     examples = [{"inputs": {"id": case.id, "question": case.question},
                  "outputs": {"facts": case.facts, "required_sections": case.required_sections,
+                             "expected_behavior": case.expected_behavior, "required_facts": case.required_facts,
                              "alternative_sections": case.alternative_sections}}
                 for case in cases]
     fingerprint = sha256(json.dumps(examples, sort_keys=True).encode()).hexdigest()[:12]
@@ -29,7 +30,8 @@ def ensure_faq_dataset(client, cases):
 def faq_feedback(outputs):
     """Publish existing scores; never repeat generation or paid judging."""
     metrics = outputs.get("metrics", {})
-    scores = [{"key": key, "score": metrics.get(field, 0.0)} for key, field in (
+    labeled = bool(outputs.get("required_sections") or outputs.get("alternative_sections"))
+    scores = [{"key": key, "score": metrics.get(field, 0.0 if labeled else None)} for key, field in (
         ("recall_at_3", "recall_at_3"), ("mrr_at_3", "reciprocal_rank"),
         ("ndcg_at_3", "ndcg_at_3"))]
     if "retrieval_judgment" in outputs:

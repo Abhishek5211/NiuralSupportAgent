@@ -3,7 +3,8 @@
 `faq_cases.json` has 34 standalone cases: common tasks (1-10), unusual/keyword-heavy
 queries (11-18), missing-information cases (19-20), short queries (21-30), and
 cross-section questions (31-34). Each has integer `id`,
-`question`, customer-facing `facts`, `required_sections`, and optional
+`question`, reference `facts`, `expected_behavior`, minimum `required_facts`,
+`required_sections`, and optional
 `alternative_sections` groups from
 [`PRODUCT_GUIDE.md`](../mock_api/PRODUCT_GUIDE.md). These are source headings,
 not chunk IDs; map them after chunking. Cases 19-20 cite sections that establish
@@ -16,15 +17,23 @@ the answering agent. Score source-section coverage separately from answer
 correctness, grounding and citations. Accept equivalent wording and optional detail.
 
 Short queries preserve informal wording, exact UI terms and typos. Case 24 requires
-clarifying i 99 rather than inventing a definition; its I-9 section is only a candidate.
+a focused clarification of i 99 rather than inventing a definition; no source is mandatory.
 Each required section is needed; each alternative group needs any one section.
-Case 23 has one alternative group. Cases 15/27 omit nonessential source requirements.
+Case 23 has one alternative group. Cases 8/15 omit nonessential source requirements.
+Expected behavior is answer, clarify, unavailable, or answer_or_clarify. Judges
+receive only the minimum checklist, not the longer reference prose; either allowed
+route passes. Cases 23/25/27 accept focused clarification or conditional guidance.
+Per-fact evidence decisions determine retrieval sufficiency. Missing values and
+rejected premises do not require positive proof when the expected answer says No
+or explains a limitation. Case 24 is excluded from retrieval metrics (33 labeled
+cases); it is still judged for clarification. No mandatory I-9 lookup is assumed.
 
 Cases 31-34 require all listed sections (3, 2, 3 and 4 respectively). The evaluator
 uses one top-3 search, so case 34 has a maximum recall@3 of 0.75. MRR/nDCG can still
 be perfect with incomplete evidence; inspect recall and saved missing_sections.
 The full chat agent can search again; this single-search baseline cannot. Original
-30 questions/facts remain unchanged. The revised labels/rubric create a new dataset
+34 questions remain unchanged; reference wording and minimum checklists are revised.
+The revised labels/rubric (faq-behavior-v3) create a new dataset
 snapshot; rerun comparisons under the same rules rather than compare old scores directly.
 
 Read the full guide and verified the original 20 cases twice: first against source sections
