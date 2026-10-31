@@ -1,13 +1,13 @@
 # Iterations tracked with Git
 
-## Baseline: main / codex/baseline
+## Baseline: main / v1
 
 The first commit preserves the earlier raw-list tools, provider configuration,
 prompt and evaluator. Only package paths and the terminal adapter were normalized.
 The model counted records itself and was observed returning incorrect headcount.
 There is no complete, comparable baseline benchmark score.
 
-## Current: codex/support-agent
+## Current: v2
 
 The next commit adds constrained Pydantic queries with Python filtering and exact
 invoice sums, complete list-field access, streaming CLI, local-only configuration,
@@ -26,7 +26,7 @@ corrected without changing source data. Hard cases now cover contacts, report
 relationships, compensation lookups, approval state and upcoming bills. Their
 reference facts were checked three independent ways; no hard-suite score is claimed.
 
-Compare `git diff codex/baseline..codex/support-agent`. Use a new branch and
+Compare `git diff v1..v2`. Use a new branch and
 LangSmith experiment for the next change, keeping cases, rubric and model settings
 fixed within a comparison. Record a failure trace, targeted change, regressions
 and keep/rollback decision. Changing judge inputs or scenario context requires

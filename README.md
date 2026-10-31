@@ -1,7 +1,7 @@
 # Niural support agent
 
-Use Git branches and commits for iterations. `main` and `codex/baseline` preserve
-the initial raw-tool agent; `codex/support-agent` contains the current implementation.
+Use Git branches and commits for iterations. `main` and `v1` preserve
+the initial raw-tool agent; `v2` contains the current implementation.
 There are no version folders. See `docs/iterations.md` for observations and limits.
 
 ## Setup
