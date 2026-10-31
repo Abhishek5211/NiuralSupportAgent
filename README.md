@@ -193,7 +193,8 @@ Weights are recorded in JSON and LangSmith experiment metadata. Keyword tokens a
 case-folded Unicode words; no stemming or benchmark-specific rules. Ranking details
 are saved per match; cosine distance remains a vector-only diagnostic.
 Reuse the existing Chroma index; BM25 builds locally at startup. One query embedding
-per search, no extra model calls. Same FAQ dataset/rubric; no eval has been run.
+per search, no extra model calls. Same FAQ dataset/rubric. The measured weight
+comparison is in docs/iterations.md; 0.5/0.5 is retained for best observed recall.
 
 ```powershell
 python -m niural_support_agent.evaluate_retriever --judge --name v6-faq-hybrid --output benchmark/results/faq-hybrid-v6.json

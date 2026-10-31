@@ -274,3 +274,25 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
 - Expose VECTOR_WEIGHT/KEYWORD_WEIGHT as hybrid.py constants (0.5 each). Save both
   in eval metadata; equal defaults preserve ranking and halve prior raw RRF scores.
   Same benchmark/top 3; no .env changes or live evaluation run.
+
+### V6 wrap-up: keep equal weights
+
+Same 34 FAQ cases (33 retrieval-scored), rubric and top 3; one run per setting.
+
+| Vector / keyword | Recall@3 | MRR@3 | nDCG@3 |
+|---|---:|---:|---:|
+| 0.5 / 0.5 | **0.952** | 0.924 | 0.925 |
+| 0.4 / 0.6 | 0.942 | 0.934 | **0.931** |
+| 0.55 / 0.45 | 0.937 | 0.924 | 0.915 |
+| 0.6 / 0.4 | 0.937 | **0.939** | 0.927 |
+
+- Keep 0.5/0.5 for best observed coverage; it does not win every metric or prove a
+  general optimum. V5 recall/MRR/nDCG were 0.907/0.828/0.843 under the same rubric.
+- Results: [equal](../benchmark/results/faq-hybrid-v6.json), [0.4](../benchmark/results/faq-hybrid-vec-0.4-v6.json), [0.55](../benchmark/results/faq-hybrid-vec-0.55-v6.json), [0.6](../benchmark/results/faq-hybrid-vec-0.6-v6.json).
+  Equal baseline used implicit 1/1, equivalent in ranking to 0.5/0.5. No run errors.
+- Judge sufficiency remains unreliable (19/33/34 false positives, 24 false negative
+  in the equal run). These are retrieval experiments; no generator quality measured.
+- Next, V7: readable source headings in customer answers, exact references in traces;
+  answer first, useful next step, concise natural wording, one focused clarification.
+  Evaluate full-agent answers/conversations for correctness, grounding, citation
+  accuracy and helpfulness on the same cases, recording latency/tokens and failures.
