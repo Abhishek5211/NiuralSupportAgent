@@ -1,19 +1,8 @@
 # Niural product guide — Employees and Niural Pay
 
-Background reading for the support agent exercise.
-
 Niural is an HR and financial operations platform. Employers use it to hire and manage
 workers, run payroll, pay their vendors and bill their customers. This guide covers the two
 areas the exercise dataset models: the **Employees** tab, and **Niural Pay**.
-
-Read it to understand what the product actually does, what each status means, and what a
-customer is likely to be asking about. Examples use a fictional employer, **Bramblewood
-Robotics**, matching the dataset.
-
-> **On the dataset.** The JSON in `data/` is a simplified extract — fewer fields, fewer
-> statuses, and its own field names. Where this guide and `API_DOCUMENTATION.md` disagree,
-> **the API documentation is authoritative for the data you will be coding against.** This
-> guide is here so you understand the product the data describes.
 
 ---
 
