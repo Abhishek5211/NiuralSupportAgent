@@ -326,3 +326,12 @@ Same 34 FAQ cases (33 retrieval-scored), rubric and top 3; one run per setting.
   user assumptions remain hypothetical. Shared chat/generator style stays within
   Niural support and related calculations, declining poetry/roleplay/unrelated work.
   Prompt-only change; no live model or evaluation run.
+
+### V7 wrap-up
+
+- `v7-faq-answers-b01bb143`: 34/34 for correctness, helpfulness, grounding and citations.
+- `failure-baseline-17a1bd4d`: 7/7 correct; `v7-modified-01dd9319`: 32/33 correct.
+- Remaining account case 10 used 2026-11-15 instead of snapshot-relative 2026-10-13;
+  align the runtime/benchmark date policy before claiming full account correctness.
+- Keep the current approach. These are single-run judge scores, not guarantees on
+  unseen cases. Wrap up feature work; no new evaluation was run for this note.
