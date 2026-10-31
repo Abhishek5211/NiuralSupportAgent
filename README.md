@@ -173,6 +173,12 @@ grounding, helpfulness and citations: 30 generation and 60 judge requests for 30
 successful cases. Gold facts never reach the generator. This evaluates the RAG
 component, not full account conversations. LangSmith follows existing settings.
 
+With LANGSMITH_TRACING=true and LANGSMITH_API_KEY in root `.env`, the same command
+creates a LangSmith dataset snapshot and experiment. Add `--name v5-faq-baseline`
+to label a run. Scores appear as evaluation feedback under Datasets & Experiments;
+the JSON report also includes the experiment link. Changed FAQ content creates a
+new dataset snapshot; unchanged cases reuse it. No additional model calls are added.
+
 Verdicts, reasons and usage share one JSON report; existing files are not overwritten.
 Judge failures remain ungraded. Source hits and cosine distances do not establish
 answer correctness. No live ingestion/eval has run; hybrid search remains deferred.

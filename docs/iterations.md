@@ -229,3 +229,7 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
 - Add FAQ cases 31-34 requiring 2-4 sections; preserve the original 30. Save missing
   section labels. Case 34 exposes the top-3 ceiling (maximum recall 0.75); the full
   chat can search again, while this evaluator retrieves once. No live eval ran.
+
+- Register FAQ runs as LangSmith experiments when tracing is enabled. Reuse a
+  content-hashed dataset; publish existing metrics/judgments as feedback without
+  extra model calls. Keep JSON and its experiment link. No live eval/upload ran.

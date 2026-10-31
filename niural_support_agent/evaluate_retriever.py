@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 from .config import BENCHMARK_DIR, Config
 from .observability import configure_langsmith
 from .rag_evaluate import RAGEvaluator
+from .rag_experiment import ensure_faq_dataset, faq_feedback
 from .retrieval import GuideRetriever
 from .runtime import error_details, git_metadata
 
@@ -91,13 +92,36 @@ async def evaluate(args):
                         row["answer_judgment_error"] = error_details(error)
                 return row
 
+            metadata = {**git_metadata(), **retriever.metadata, "retrieval_k": 3,
+                        "generate": args.generate, "judge": args.judge,
+                        "agent_model": config.model, "judge_model": config.judge_model}
             rows = []
+            cases_by_id = {case.id: case for case in cases}
+
+            async def target(inputs):
+                case = cases_by_id[inputs["id"]]
+                row = await evaluate_case(case)
+                rows.append(row)
+                print(f"Case {case.id}: recall@3={row.get('metrics', {}).get('recall_at_3', 'error')}")
+                return row
+
+            experiment_info = None
             with tracing_context(client=langsmith, project_name=config.langsmith_project,
                                  enabled=langsmith is not None):
-                for case in cases:
-                    row = await evaluate_case(case)
-                    rows.append(row)
-                    print(f"Case {case.id}: recall@3={row.get('metrics', {}).get('recall_at_3', 'error')}")
+                if langsmith is not None:
+                    dataset = await asyncio.to_thread(ensure_faq_dataset, langsmith, cases)
+                    experiment = await langsmith.aevaluate(
+                        target, data=dataset, evaluators=[faq_feedback],
+                        experiment_prefix=args.name, metadata=metadata,
+                        description="Single-search product-guide retrieval and optional answer judging",
+                        max_concurrency=1, num_repetitions=1)
+                    experiment_info = {"dataset": dataset, "name": experiment.experiment_name,
+                                       "url": experiment.url}
+                    print(f"LangSmith experiment: {experiment.url or experiment.experiment_name}")
+                else:
+                    for case in cases:
+                        await target({"id": case.id, "question": case.question})
+            rows.sort(key=lambda row: row["id"])
             successful = [row for row in rows if "retrieval" in row]
             summary = {
                 "cases": len(rows), "retrieval_errors": len(rows) - len(successful),
@@ -118,9 +142,7 @@ async def evaluate(args):
                     summary["answer_judged_cases"] = len(answer_grades)
                     for field in ("correct", "grounded", "helpful", "citations_valid"):
                         summary["answer_" + field] = mean(g[field] for g in answer_grades) if answer_grades else None
-            report = {"metadata": {**git_metadata(), **retriever.metadata,
-                                   "retrieval_k": 3, "generate": args.generate, "judge": args.judge,
-                                   "agent_model": config.model, "judge_model": config.judge_model},
+            report = {"metadata": metadata, "experiment": experiment_info,
                       "summary": summary, "cases": rows}
             args.output.parent.mkdir(parents=True, exist_ok=True)
             with args.output.open("x", encoding="utf-8") as stream:
@@ -135,6 +157,7 @@ async def evaluate(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=BENCHMARK_DIR / "results/retriever-v5.json")
+    parser.add_argument("--name", default="v5-faq", help="LangSmith experiment name prefix.")
     parser.add_argument("--generate", action="store_true", help="Also generate answers from retrieved passages.")
     parser.add_argument("--judge", action="store_true", help="Judge passage relevance/sufficiency, and generated answers if enabled.")
     asyncio.run(evaluate(parser.parse_args()))

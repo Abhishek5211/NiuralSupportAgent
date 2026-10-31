@@ -40,6 +40,9 @@ relevance/sufficiency; optional answer judges assess correctness, grounding,
 helpfulness and citations. Grades can be wrong: inspect reasons and traces. No
 hard similarity threshold is assumed. Judge failures are unavailable, not failures
 of the answer. Results go to one explicitly named JSON file, with no manifest.
+When LangSmith tracing is enabled, runs also appear as experiments with metric and
+optional judge feedback. FAQ content determines the dataset snapshot; compare runs
+on the same snapshot. `--name` labels the experiment; JSON keeps its link.
 
 # Arithmetic baseline
 
