@@ -1,9 +1,10 @@
 """Validate account records while preserving all supplied fixture fields."""
 
 from datetime import date
+from decimal import Decimal
 from typing import Generic, Literal, TypeVar
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 SNAPSHOT_DATE = date(2026, 9, 28)
 
@@ -27,6 +28,12 @@ class Onboarding(Record):
     steps: list[OnboardingStep]
 
 
+class Compensation(Record):
+    amount: Decimal = Field(ge=0, allow_inf_nan=False)
+    currency: str
+    frequency: Literal["ANNUAL", "HOURLY"]
+
+
 class Employee(Record):
     employee_id: str
     first_name: str
@@ -34,6 +41,7 @@ class Employee(Record):
     status: Literal["ONBOARDED", "PENDING_ONBOARDING", "DISMISSED"]
     employment_type: Literal["EMPLOYEE", "US_1099_CONTRACTOR"]
     work_location: WorkLocation
+    compensation: Compensation | None = None
     onboarding: Onboarding | None = None
     payroll_eligible: bool | None = None
 

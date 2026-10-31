@@ -34,12 +34,17 @@ def api_error(context, error):
 def build_tools(account: MockAPI):
     @function_tool(failure_error_function=api_error)
     def query_account(query: AccountQuery) -> str:
-        """Filter, select, count or sum authenticated account data using Python.
+        """Filter, select, count, sum, average and sort authenticated account data.
 
         Use this for every account list, name lookup, headcount and balance.
         employees fields: employee_id, first_name, last_name, work_email,
         job_title, department, status, employment_type, start_date, manager_name,
         work_location (city, state, country_iso2).
+        Employee compensation (amount, currency, frequency) is available: this
+        tool fetches matching employee details internally when needed. Select
+        compensation or its dotted fields. ANNUAL is salary; HOURLY is a rate.
+        Use aggregate_field=compensation.amount for employee sum/average;
+        currency and frequency are automatically kept in separate groups.
         Active means status=ONBOARDED; EMPLOYEE excludes US_1099_CONTRACTOR.
         vendors fields: vendor_id, name, email, status, default_currency,
         payment_method, payment_terms_days, address (city, country_iso2).
@@ -53,7 +58,10 @@ def build_tools(account: MockAPI):
         Statuses and worker types use exact uppercase API values. Text contains
         is case-insensitive; other comparisons are exact. Filters use AND.
         For outstanding balance exclude PAID, including pending/scheduled bills.
-        Sum invoice amount with Decimal; currencies are always kept separate.
+        Use aggregate_field=amount for invoice sum/average, grouped by currency.
+        order_by sorts records by scalar fields, or aggregates by group_by fields
+        and value. For salary rankings filter to one currency and frequency.
+        Sums and averages use Decimal; aggregate count is its contributing rows.
         Empty select/groups means no matches, not a tool failure. No pagination.
         Return IDs in selected fields when a follow-up detail lookup is needed.
         Onboarding, dismissal and approval detail require the detail tools.
@@ -62,7 +70,8 @@ def build_tools(account: MockAPI):
                    "invoices": account.list_vendor_invoices}
         # Ordinary SDK tools stringify BaseModel objects as Python repr, so
         # explicitly serialize the validated QueryResponse to JSON.
-        return query_records(readers[query.resource](), query).model_dump_json()
+        return query_records(readers[query.resource](), query,
+                             get_employee=account.get_employee).model_dump_json()
 
     @function_tool(failure_error_function=api_error)
     def get_employee(employee_id: str) -> str:
