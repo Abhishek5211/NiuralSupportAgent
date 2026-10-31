@@ -248,3 +248,16 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
   23/25/27 accept clarification or conditional guidance. Case 24 needs no source and
   is unscored for retrieval (33 labeled cases). New rubric: faq-behavior-v3.
   Retrieval and generator unchanged. Offline checks only; no live eval/upload ran.
+
+### V5 wrap-up: semantic FAQ baseline
+
+- [Saved run](../benchmark/results/faq-behavior-v3.json): 34 cases; 33 retrieval-scored.
+  Recall@3 0.907, MRR@3 0.828, nDCG@3 0.843; no retrieval errors; mean retrieval 441ms.
+- Judge reports sufficiency 30/34. Manual review: 24 is a false negative; 19/33
+  incorrectly pass missing scope/transaction evidence. This is an imperfect judge.
+- Real misses remain: bill notes (29), DOCX contract evidence (32), and transaction
+  evidence (33/34). Four required sections in 34 exceed the fixed top-3 budget.
+- Keep the behavior/checklist rubric; no generator evaluation was run. Earlier
+  scores use different labels/rubrics and are not directly comparable.
+- Next: v6 hybrid keyword + vector search. Compare the same cases/rubric and top-3
+  budget first; inspect coverage and regressions. Keep judge caveats visible.
