@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "question": "How many active employees do we have?",
+    "facts": "You have 16 active workers: 14 employees and 2 contractors."
+  },
+  {
+    "id": 2,
+    "question": "Which of our employees are based in New York?",
+    "facts": "In New York state: Marisol Okonjo, Rosalind Vane, Desmond Achebe, Saoirse Kavanagh, Beatrix Nolan, and Chiara Rossi. Marisol and Chiara are in Brooklyn; the other four are in New York City."
+  },
+  {
+    "id": 3,
+    "question": "Is Marisol Okonjo's onboarding finished, or is something outstanding?",
+    "facts": "Marisol's onboarding is incomplete. The employer still needs to complete I-9 Section 2 by verifying her original documents."
+  },
+  {
+    "id": 4,
+    "question": "Why isn't Priya showing up in this payroll run?",
+    "facts": "Priya has been offboarded and is no longer eligible for payroll. Her final pay date was August 31, 2026."
+  },
+  {
+    "id": 5,
+    "question": "Why hasn't Halberd Components been paid yet?",
+    "facts": "Halberd Components' unpaid bill is waiting for Beatrix Nolan's approval."
+  },
+  {
+    "id": 6,
+    "question": "Which bills are overdue right now?",
+    "facts": "As of September 28, 2026, five bills are overdue: two from Orrery Cloud for USD 1,250 each, one from Kestrel Freight for USD 3,120, one from Sable Facilities for USD 2,750, and one from Pallas Metalworks for USD 9,400."
+  },
+  {
+    "id": 7,
+    "question": "How much do we owe Orrery Cloud in total?",
+    "facts": "You owe Orrery Cloud USD 3,480 across three unpaid bills, including one awaiting approval."
+  },
+  {
+    "id": 8,
+    "question": "The payment for that freight invoice failed - why?",
+    "facts": "The Kestrel Freight payment failed because the funding account had insufficient funds on the settlement date."
+  }
+]
