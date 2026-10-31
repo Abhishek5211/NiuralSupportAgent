@@ -1,4 +1,4 @@
-"""OpenAI embeddings and a local Chroma index for product-guide sections."""
+"""Hybrid BM25 and Chroma vector retrieval for product-guide sections."""
 
 import argparse
 import asyncio
@@ -15,6 +15,7 @@ from pydantic import BaseModel
 
 from .chunking import GuideChunk, chunk_product_guide
 from .config import Config, PROJECT_DIR
+from .hybrid import KeywordIndex, Ranking, RRF_CONSTANT
 
 
 INDEX_DIR = PROJECT_DIR / ".chroma"
@@ -28,6 +29,7 @@ class IndexNotReadyError(RuntimeError):
 
 class SearchMatch(GuideChunk):
     distance: float
+    ranking: Ranking
 
 
 class SearchResult(BaseModel):
@@ -44,6 +46,9 @@ class GuideRetriever:
         self.client = client
         self.index_dir = index_dir
         self.chunks = chunk_product_guide()
+        self.keywords = KeywordIndex(self.chunks)
+        self.search_metadata = {"retrieval_method": "hybrid-bm25-rrf", "rrf_constant": RRF_CONSTANT,
+                                "candidate_count": len(self.chunks), "keyword_tokenizer": "unicode-word-casefold"}
         content = json.dumps([c.embedding_text for c in self.chunks], ensure_ascii=False)
         self.metadata = {
             "source_hash": sha256(content.encode("utf-8")).hexdigest(),
@@ -116,12 +121,16 @@ class GuideRetriever:
         embedding_ms = (perf_counter() - embedding_started) * 1000
         search_started = perf_counter()
         result = await asyncio.to_thread(
-            collection.query, query_embeddings=vectors, n_results=min(3, len(self.chunks)),
+            collection.query, query_embeddings=vectors, n_results=len(self.chunks),
             include=["documents", "metadatas", "distances"])
-        matches = [SearchMatch(section_id=identifier, text=text, distance=distance, **metadata)
-                   for identifier, text, metadata, distance in zip(
-                       result["ids"][0], result["documents"][0],
-                       result["metadatas"][0], result["distances"][0], strict=True)]
+        records = {identifier: (text, metadata, distance)
+                   for identifier, text, metadata, distance in zip(result["ids"][0], result["documents"][0],
+                       result["metadatas"][0], result["distances"][0], strict=True)}
+        matches = []
+        for identifier, ranking in self.keywords.fuse(query, result["ids"][0]):
+            text, metadata, distance = records[identifier]
+            matches.append(SearchMatch(section_id=identifier, text=text, distance=distance,
+                                       ranking=ranking, **metadata))
         return SearchResult(
             matches=matches, embedding_tokens=tokens, embedding_ms=round(embedding_ms, 2),
             search_ms=round((perf_counter() - search_started) * 1000, 2),

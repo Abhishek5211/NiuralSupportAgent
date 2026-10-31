@@ -261,3 +261,12 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
   scores use different labels/rubrics and are not directly comparable.
 - Next: v6 hybrid keyword + vector search. Compare the same cases/rubric and top-3
   budget first; inspect coverage and regressions. Keep judge caveats visible.
+
+### V6: hybrid retrieval
+
+- Add BM25 keyword ranking and equal-weight reciprocal rank fusion (constant 60).
+  Both rank all 17 sections locally/from Chroma; only the final top 3 reach the model.
+  Reuse embeddings/index; still one query embedding. Save component ranks and scores.
+- Same FAQ cases, behavior rubric, generator and judge; no benchmark-specific tuning.
+  Compare against the v5 saved run, retaining known judge caveats. Offline checks
+  only; no live embeddings, generator/judge calls or evaluation run.

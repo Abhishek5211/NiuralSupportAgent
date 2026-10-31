@@ -148,8 +148,9 @@ def build_tools(account: MockAPI, guide: GuideRetriever | None = None):
 
             Use for how-to and product questions; include the subject in follow-ups.
             Account-specific facts require account tools. Results include section IDs,
-            headings and excerpts for citations. Lower cosine distance is closer,
-            not a confidence score. Missing evidence requires clarification or support.
+            headings and excerpts for citations, ordered by hybrid keyword/vector rank.
+            Distance is vector-only; scores are not confidence. Missing evidence
+            requires clarification or support.
             """
             try:
                 return (await guide.search(query)).model_dump_json()

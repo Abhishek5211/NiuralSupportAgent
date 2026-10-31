@@ -122,7 +122,7 @@ async def evaluate(args):
                         row["answer_judgment_error"] = error_details(error)
                 return row
 
-            metadata = {**git_metadata(), **retriever.metadata, "retrieval_k": 3,
+            metadata = {**git_metadata(), **retriever.metadata, **retriever.search_metadata, "retrieval_k": 3,
                         "generate": args.generate, "judge": args.judge,
                         "evaluation_rubric": "faq-behavior-v3",
                         "agent_model": config.model, "judge_model": config.judge_model}
@@ -189,8 +189,8 @@ async def evaluate(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=BENCHMARK_DIR / "results/retriever-v5.json")
-    parser.add_argument("--name", default="v5-faq", help="LangSmith experiment name prefix.")
+    parser.add_argument("--output", type=Path, default=BENCHMARK_DIR / "results/retriever-v6.json")
+    parser.add_argument("--name", default="v6-faq-hybrid", help="LangSmith experiment name prefix.")
     parser.add_argument("--generate", action="store_true", help="Also generate answers from retrieved passages.")
     parser.add_argument("--judge", action="store_true", help="Judge passage relevance/sufficiency, and generated answers if enabled.")
     asyncio.run(evaluate(parser.parse_args()))

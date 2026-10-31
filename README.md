@@ -181,4 +181,18 @@ new dataset snapshot; unchanged cases reuse it. No additional model calls are ad
 
 Verdicts, reasons and usage share one JSON report; existing files are not overwritten.
 Judge failures remain ungraded. Source hits and cosine distances do not establish
-answer correctness. No live ingestion/eval has run; hybrid search remains deferred.
+answer correctness. See docs/iterations.md for recorded experiments and limitations.
+
+## V6: hybrid retrieval
+
+BM25 keywords and Chroma vectors rank all 17 unchanged sections, then
+[reciprocal rank fusion](https://www.elastic.co/docs/reference/elasticsearch/rest-apis/reciprocal-rank-fusion)
+(equal weights, constant 60) returns the top 3. Keyword tokens are
+case-folded Unicode words; no stemming or benchmark-specific rules. Ranking details
+are saved per match; cosine distance remains a vector-only diagnostic.
+Reuse the existing Chroma index; BM25 builds locally at startup. One query embedding
+per search, no extra model calls. Same FAQ dataset/rubric; no eval has been run.
+
+```powershell
+python -m niural_support_agent.evaluate_retriever --judge --name v6-faq-hybrid --output benchmark/results/faq-hybrid-v6.json
+```
