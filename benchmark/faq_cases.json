@@ -118,5 +118,87 @@
     "question": "The bill's Overview mentions an ACH processing fee. What exact fixed fee or percentage will Niural charge us? I need a number, not an explanation.",
     "facts": "The guide says a bill's Overview includes a summary with fees such as an ACH processing fee. It does not provide a fixed amount, percentage or fee schedule. Explain that the rate cannot be established from this guide and direct the user to the fee shown on their bill or authoritative fee information/support. Do not invent a charge or treat the mere presence of a fee label as a published price.",
     "expected_sections": ["A single bill"]
+  },
+  {
+    "id": 21,
+    "question": "what are columns of bill?",
+    "facts": "The Bills list columns are Invoice ID, Invoice number, Invoice date, Scheduled pay date, Vendor, Entity, Department, Status, Amount, Preferred currency and Emma's review. This is the vendor Bills list, not the customer Invoices list.",
+    "expected_sections": [
+      "Bills"
+    ]
+  },
+  {
+    "id": 22,
+    "question": "why i create invoice and not sending?",
+    "facts": "Creating a customer invoice does not send it. It stays at Email not sent until sent to the customer. The guide does not establish a delivery failure for a particular invoice; creating and sending are separate actions.",
+    "expected_sections": [
+      "How to create a customer invoice"
+    ]
+  },
+  {
+    "id": 23,
+    "question": "it shows unlinked what does that mean?",
+    "facts": "For customer invoices, Unlinked means no contract is attached, so Emma has no contract to check the invoice against. It does not mean the bank connection broke.",
+    "expected_sections": [
+      "Accounts receivable — Invoices",
+      "How to create a customer invoice"
+    ]
+  },
+  {
+    "id": 24,
+    "question": "what is does i 99 mean?",
+    "facts": "The guide does not define i 99 or an I-99 form. Ask whether the user means Form I-9. The Onboarding and Form I-9 section is a possible relevant source, not proof that the typo means I-9. Do not invent an I-99 definition or confidently equate the two terms without clarification.",
+    "expected_sections": [
+      "Onboarding and Form I-9"
+    ]
+  },
+  {
+    "id": 25,
+    "question": "who changed payee details?",
+    "facts": "Open the individual bill's Activity section to see who did what and when, newest first. The guide illustrates changes to payee details and payment methods there. It does not establish who changed a particular account bill; do not present the example person's name as that bill's actual actor.",
+    "expected_sections": [
+      "A single bill"
+    ]
+  },
+  {
+    "id": 26,
+    "question": "kyb and active same?",
+    "facts": "No. KYB means Know-Your-Business and has Verified or Not verified states. It is separate from the vendor being Active. An Active vendor is not automatically KYB verified.",
+    "expected_sections": [
+      "Vendors"
+    ]
+  },
+  {
+    "id": 27,
+    "question": "can upload docx invoice?",
+    "facts": "Upload vendor invoice accepts JPEG, PNG or PDF, up to 10MB. The guide does not list DOCX as an invoice-upload format. PDF, DOC and DOCX are listed for vendor contract uploads, which are a different upload workflow.",
+    "expected_sections": [
+      "How to add a bill",
+      "How to add a vendor"
+    ]
+  },
+  {
+    "id": 28,
+    "question": "slash key employee search?",
+    "facts": "On the Employees list, pressing / focuses Search. Search and Filter appear above the table.",
+    "expected_sections": [
+      "The employee list"
+    ]
+  },
+  {
+    "id": 29,
+    "question": "bill notes limit?",
+    "facts": "The Add bill form allows 500 characters in Notes. This is a character limit, not 500 words or an attachment size limit.",
+    "expected_sections": [
+      "How to add a bill"
+    ]
+  },
+  {
+    "id": 30,
+    "question": "PEO self serve?",
+    "facts": "The guide describes PEO employee hiring as sales-gated. In that hiring option, Niural handles payroll, compliance and HR. Do not promise an unrestricted self-service PEO setup; refer to sales for access. This does not establish why any specific account lacks access.",
+    "expected_sections": [
+      "How to hire an employee"
+    ]
   }
 ]

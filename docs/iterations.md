@@ -204,3 +204,6 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
 - 17 typed chunks; stable filename/heading IDs and heading-prefixed embedding text.
   All 20 FAQ source labels map to chunks. Verified locally; no inference/eval ran.
 - Next: embed these chunks and store them in Chroma. Retrieval is not implemented yet.
+
+- Extend the FAQ set to 30 with ten short queries (21-30), including Unlinked,
+  KYB, DOCX uploads and an ambiguous i 99 typo. Source-checked; original 20 unchanged.
