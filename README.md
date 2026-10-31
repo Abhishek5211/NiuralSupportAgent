@@ -125,18 +125,18 @@ The Python result contains `answer`, `error`, `usage` and `latency_ms`.
 Run account suites **without LangSmith**; replace `standard` with another suite:
 
 ```powershell
-python -m niural_support_agent.run_benchmark --suite standard --local --output benchmark/results/standard-review.json
+python -m niural_support_agent.evaluation.run_benchmark --suite standard --local --output benchmark/results/standard-review.json
 ```
 
 Evaluate retrieval and full-agent answers separately:
 
 ```powershell
-python -m niural_support_agent.evaluate_retriever --output benchmark/results/retrieval-review.json
-python -m niural_support_agent.evaluate_answers --judge --output benchmark/results/answers-review.json
+python -m niural_support_agent.evaluation.retriever --output benchmark/results/retrieval-review.json
+python -m niural_support_agent.evaluation.answers --judge --output benchmark/results/answers-review.json
 ```
 
-Retrieval reports recall@3, MRR@3 and nDCG@3. `evaluate_retriever --generate --judge`
-also evaluates a passage-only generator; `evaluate_answers` runs the actual agent,
+Retrieval reports recall@3, MRR@3 and nDCG@3. `evaluation.retriever --generate --judge`
+also evaluates a passage-only generator; `evaluation.answers` runs the actual agent,
 including its tool selection and repeated searches. Reference facts stay hidden
 from generation. FAQ answer cases are standalone; account suites cover multi-turn behavior.
 
@@ -200,6 +200,7 @@ for failures, targeted changes, traces and before/after comparisons.
 These are single-run observations, not guarantees on unseen questions. Compare
 versions using the same cases, reference facts, rubric and model settings. Judge
 errors were found and manually inspected; higher judge scores alone are not proof.
+These results precede the general-prompt cleanup; that change has not been evaluated.
 
 ## Limitations
 
@@ -221,8 +222,24 @@ errors were found and manually inspected; higher judge scores alone are not proo
 
 ## Project map and validation
 
-`niural_support_agent/`: runtime/tools/evaluators · `mock_api/`: schemas and fixtures ·
-`benchmark/`: cases/rubrics/results · `notebooks/`: walkthrough · `docs/`: assignment and iterations.
+```text
+niural_support_agent/
+  agent.py, cli.py             # Conversation loop and interactive chat
+  config.py, models.py         # Settings and shared input/output models
+  runtime.py, observability.py # Model settings and optional tracing
+  tools/                      # Account queries, detail tools and calculator
+  retrieval/                  # Markdown chunks, hybrid search and index CLI
+  evaluation/                 # Account/FAQ runners, judges and fault injection
+  prompts/                    # General support, style and correctness instructions
+mock_api/                     # Auth, API models, guide and synthetic records
+benchmark/                    # Reference cases and recorded results
+notebooks/                    # Manual evaluation walkthrough
+docs/                         # Assignment and iteration notes
+```
+
+Prompts describe general behavior and API constraints, without named-case answers
+or fixed reference totals. Expected answers stay in benchmark data and reach only
+the judge. New York city/state guidance is retained as an explicit scope rule.
 
 Codex assisted with implementation, prompts and case drafting. Outputs were checked
 against fixture/API/guide evidence, offline checks and execution traces, with manual

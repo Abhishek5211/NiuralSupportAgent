@@ -15,7 +15,7 @@
 - **Boundaries:** 15 days ahead = 2026-10-13; three calendar months back = 2026-06-28; the last 30 dates including today start 2026-08-30. Future windows filter current records, not predicted payment outcomes.
 - **Label checks:** Date/money/ranking references were checked with raw JSON/Python/Decimal and independent SQLite queries, plus API/contract checks. New conversation setup references were checked against fixtures and authenticated API reads. [Verification evidence](results/cases-extended-verification.json)
 - **Dataset:** `--suite standard` uses `niural-account-standard-v3`; earlier datasets stay frozen. The hard suite now uses its own multi-turn snapshot described below; the arithmetic multi-turn snapshot is described below. The common judge rubric now explicitly accepts reference-required clarification; use the same revised rubric for both sides of a new comparison.
-- **Run:** `python -m niural_support_agent.run_benchmark --suite standard --name standard-multiturn-baseline`.
+- **Run:** `python -m niural_support_agent.evaluation.run_benchmark --suite standard --name standard-multiturn-baseline`.
 - **Comparison:** These are verified labels and a tested harness, not a new agent score. Multi-turn execution changes the scenario; rerun both compared code versions with this same script/rubric before claiming improvement.
 
 # Failure scenarios
@@ -27,7 +27,7 @@
 - **Scoring:** Judge every conversational answer against that turn's hidden facts; the expected runtime timeout is checked deterministically. All turns must pass. Required injections must appear in `fault_events`; an unexercised rule leaves the case ungraded. The native 404 case has no synthetic rule.
 - **Isolation:** Each case has a fresh session; fault state is scoped to its async execution. Standard, hard and arithmetic datasets keep their current inputs/references.
 - **Dataset:** `niural-account-failures-v1`.
-- **Run:** `python -m niural_support_agent.run_benchmark --suite failures --name failure-baseline`.
+- **Run:** `python -m niural_support_agent.evaluation.run_benchmark --suite failures --name failure-baseline`.
 - **Verified locally:** Fault-to-tool error mapping, recovery on later turns, concurrent fault isolation, hidden references and per-turn scoring. The original failed-turn bug loses the Orrery correction; the revised runtime retains it. Existing dataset inputs/references are unchanged. No test files were created.
 - **Status:** Failure-suite accuracy is unmeasured; these local checks used deterministic substitutes for model execution. No paid model, embedding or remote LangSmith calls ran.
 
@@ -101,7 +101,7 @@ on the same snapshot. `--name` labels the experiment; JSON keeps its link.
 - **Verification:** Every new turn was checked twice: raw-fixture 50-digit Decimal arithmetic and independent SQLite integer-cent inputs with exact Fraction arithmetic. Recorded inputs were also checked against MockAPI. [Per-turn evidence](results/arithmetic-multiturn-verification.json)
 - **Execution/scoring:** Use the existing `turns` format. Preserve actual conversation/tool history; judge each turn against its hidden reference. Every turn must pass. No canned assistant answers or extra test files.
 - **Dataset:** `niural-account-arithmetic-v2`; the previous eight-case `niural-account-arithmetic-v1` remains frozen. Compare agent versions only on the same cases, rubric, model settings and turn budgets.
-- **Run:** `python -m niural_support_agent.run_benchmark --suite arithmetic --name arithmetic-multiturn-baseline`.
+- **Run:** `python -m niural_support_agent.evaluation.run_benchmark --suite arithmetic --name arithmetic-multiturn-baseline`.
 - **Status:** References are verified; no live model, judge, embedding or remote LangSmith calls were made during preparation. No new agent performance score is claimed.
 
 | Original case | Verified reference result |
@@ -124,7 +124,7 @@ on the same snapshot. `--name` labels the experiment; JSON keeps its link.
 - **Scoring:** Every turn must pass. No canned assistant history, case-ID hints or test files are added.
 - **Verified:** All six new turn references agree across raw JSON/Decimal, independent SQLite and authenticated API/query reads. [Verification evidence](results/hard-multiturn-verification.json)
 - **Dataset:** `niural-account-hard-v2` preserves the frozen eight-case `niural-account-hard-v1`. New results are not directly comparable to the old 7/8 result; rerun both agent versions on the same ten scenarios and rubric.
-- **Run:** `python -m niural_support_agent.run_benchmark --suite hard --name hard-multiturn-baseline`.
+- **Run:** `python -m niural_support_agent.evaluation.run_benchmark --suite hard --name hard-multiturn-baseline`.
 - **Status:** Labels and evaluator wiring are verified; no new agent, judge, embedding or remote LangSmith calls have run.
 
 Original compound cases 1-8 remain self-contained and explicitly pin 2026-09-28.
@@ -193,9 +193,12 @@ from the answering agent. Pass them only to the evaluator/judge.
 
 ## Scoring
 
-Use `judge_prompt.txt` with the question, actual conversation context, reference
+Use [correctness rubric](../niural_support_agent/prompts/correctness.txt) with the question, actual conversation context, reference
 facts and candidate answer. The answering agent receives only the question, context
 and its normal documentation/tools, never the reference facts.
+The current rubric is general: named cases and fixed reference totals have been
+removed. Re-run both comparison versions with this same rubric; old scores use
+the earlier instructions.
 
 The judge returns `correct` and a short `reason`. Accept equivalent wording and
 reasonable formatting. Reference facts are not an exact output template; require

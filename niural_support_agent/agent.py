@@ -11,13 +11,12 @@ from openai import AsyncOpenAI
 from openai.types.responses import ResponseTextDeltaEvent
 
 from mock_api.auth import EMPLOYER_ID
-from .config import Config, PACKAGE_DIR
-from .evaluate import judge_answer
-from .failures import ScenarioAPI, raise_run_fault
+from .config import Config
+from .evaluation.faults import ScenarioAPI, raise_run_fault
 from .models import ChatRequest, Outcome
 from .observability import configure_langsmith
 from .retrieval import GuideRetriever
-from .response_style import CUSTOMER_STYLE
+from .prompts import CUSTOMER_STYLE, SYSTEM_PROMPT
 from .runtime import error_details, model_settings, usage_dict
 from .tools import build_tools
 
@@ -36,7 +35,7 @@ class SupportAgent:
         self.guide = GuideRetriever(config, self.client)
         self.agent = Agent(
             name="Niural support",
-            instructions=(PACKAGE_DIR / "prompt.txt").read_text(encoding="utf-8") + "\n" + CUSTOMER_STYLE,
+            instructions=SYSTEM_PROMPT + "\n" + CUSTOMER_STYLE,
             model=OpenAIResponsesModel(config.model, self.client),
             model_settings=model_settings(config.model, "medium",
                                           parallel_tool_calls=config.parallel_tool_calls),
@@ -109,5 +108,7 @@ class SupportAgent:
             await asyncio.to_thread(self.langsmith_client.close, timeout=10)
 
     async def judge(self, question, context, facts, answer):
-        """Compatibility helper for the notebook; evaluation lives in evaluate.py."""
+        """Notebook helper; judging lives in evaluation/account.py."""
+        from .evaluation.account import judge_answer
+
         return await judge_answer(self, question, context, facts, answer)

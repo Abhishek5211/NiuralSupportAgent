@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from mock_api import APIError, MockAPI
 from .calculator import Calculation, calculate as run_calculation
 from .query import AccountQuery, StrictModel, invoice_identifier_field, query_records
-from .retrieval import GuideRetriever, IndexNotReadyError
+from ..retrieval import GuideRetriever, IndexNotReadyError
 
 
 class ToolError(StrictModel):
@@ -142,9 +142,8 @@ def build_tools(account: MockAPI, guide: GuideRetriever | None = None):
         supply both places and rounding (half_up, half_even, floor, ceiling), or
         leave both null. USD uses 2 places. Standalone round requires both fields.
         Later steps use the rounded result. Do not round intermediates unless
-        required. For allocation, round the requested recipients
-        first, then subtract their allocations from the budget for the residual.
-        Keep reserve, total cash and spendable cash as distinct named quantities.
+        required by the request. Keep quantities with different meanings or
+        units separate; choose formulas from the request, not from examples.
         All steps run locally in one call. Results are decimal strings. This tool
         verifies arithmetic, not input provenance, currency compatibility or the
         business meaning of your formulas. It never changes accounts or payments.

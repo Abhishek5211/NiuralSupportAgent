@@ -8,10 +8,10 @@ from uuid import uuid4
 
 from agents import Agent, OpenAIResponsesModel, RunConfig, Runner
 
-from .config import BENCHMARK_DIR
-from .failures import failure_scope, validate_faults
-from .models import Judgment
-from .runtime import error_details, model_settings, usage_dict
+from ..prompts import CORRECTNESS_PROMPT
+from .faults import failure_scope, validate_faults
+from ..models import Judgment
+from ..runtime import error_details, model_settings, usage_dict
 
 
 def case_context(case):
@@ -163,7 +163,7 @@ async def judge_answer(agent, question, context, facts, answer):
     config = agent.config
     judge = Agent(
         name="Niural correctness judge",
-        instructions=(BENCHMARK_DIR / "judge_prompt.txt").read_text(encoding="utf-8"),
+        instructions=CORRECTNESS_PROMPT,
         model=OpenAIResponsesModel(config.judge_model, agent.client),
         model_settings=model_settings(config.judge_model, "low"),
         output_type=Judgment,

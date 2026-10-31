@@ -11,11 +11,11 @@ dependencies = ["openai-agents==0.24.0", "python-dotenv>=1.2,<2", "pydantic>=2.1
 
 [project.scripts]
 niural-agent = "niural_support_agent.cli:main"
-niural-benchmark = "niural_support_agent.run_benchmark:main"
+niural-benchmark = "niural_support_agent.evaluation.run_benchmark:main"
 
 [tool.setuptools.packages.find]
 include = ["niural_support_agent*", "mock_api*"]
 
 [tool.setuptools.package-data]
-niural_support_agent = ["prompt.txt"]
+"niural_support_agent.prompts" = ["*.txt"]
 mock_api = ["data/*.json", "*.md"]

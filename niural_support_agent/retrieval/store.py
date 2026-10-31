@@ -14,7 +14,7 @@ from openai import AsyncOpenAI
 from pydantic import BaseModel
 
 from .chunking import GuideChunk, chunk_product_guide
-from .config import Config, PROJECT_DIR
+from ..config import Config, PROJECT_DIR
 from .hybrid import KeywordIndex, Ranking, RRF_CONSTANT, VECTOR_WEIGHT, KEYWORD_WEIGHT
 
 

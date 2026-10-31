@@ -6,8 +6,10 @@ from pathlib import Path
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 from pydantic import BaseModel, ConfigDict
 
+from ..config import PROJECT_DIR
 
-GUIDE_PATH = Path(__file__).resolve().parents[1] / "mock_api" / "PRODUCT_GUIDE.md"
+
+GUIDE_PATH = PROJECT_DIR / "mock_api" / "PRODUCT_GUIDE.md"
 
 
 class GuideChunk(BaseModel):

@@ -6,8 +6,8 @@ import json
 from agents import Agent, OpenAIResponsesModel, RunConfig, Runner
 from pydantic import BaseModel, ConfigDict, StrictBool
 
-from .runtime import model_settings, usage_dict
-from .response_style import CUSTOMER_STYLE
+from ..runtime import model_settings, usage_dict
+from ..prompts import CUSTOMER_STYLE
 
 
 class Verdict(BaseModel):
@@ -70,9 +70,8 @@ answers. Do not demand positive proof of a premise the correct answer rejects.
 clarify: a focused clarification can satisfy the checklist without any passage;
 do not require resolving the ambiguity or retrieving one guessed interpretation.
 unavailable: assess support for the expected limitation, not the unavailable value
-or action. Text mentioning a fee without a rate supports saying this text gives
-no rate; examples cannot verify a customer's actual records. Global claims about
-the entire guide being out of scope still need explicit scope evidence.
+or action. Distinguish a missing value in supplied evidence from a claim about
+the entire product. Examples cannot verify a customer's actual records.
 answer_or_clarify: accept either route allowed by the checklist, including a
 conditional product answer; do not require facts from the route not taken.
 Optional explanations are not required. Mark an item unsupported when required

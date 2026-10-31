@@ -1,8 +1,8 @@
 # Support Agent Iterations
 
 - **Goal:** Answer account questions accurately using authenticated, read-only tools.
-- **Versions:** Git branches `v1` (baseline) and `v2` (current).
-- **Latest measured result:** V2 hard benchmark **7/8 correct (87.5%)**. [Hard export](../benchmark/results/v2-hard-8e6c80b8.csv)
+- **Versions:** Git branches `v1`–`v7`; current implementation is `v7`.
+- **Latest measured results:** See V7 wrap-up below; earlier scores remain historical.
 - **Data snapshot:** 2026-09-28; all counts and dates below use this snapshot.
 
 ## V1 - Raw API tools
@@ -340,3 +340,13 @@ Same 34 FAQ cases (33 retrieval-scored), rubric and top 3; one run per setting.
   --local overrides tracing for one run. Same suites, multi-turn/fault handling and
   judge; --no-judge skips grading. Save transcripts, tool events, scores, usage and summary;
   optional LangSmith/notebook behavior retained. Offline checks only; no live eval.
+
+### V7 cleanup: structure and general prompts
+
+- Group modules under tools/, retrieval/, evaluation/ and prompts/. Update CLI
+  commands and notebook imports; chat and index commands stay the same.
+- Remove fixed headcounts and named-case rules from the correctness rubric, and
+  scenario-specific calculator instructions. Keep general grounding, API contracts,
+  rounding, clarification and New York scope guidance. Reference cases are unchanged.
+- Prompt/rubric changes need a fresh evaluation; previous scores describe the
+  earlier prompts. Offline checks only; no live evaluation run for this cleanup.
