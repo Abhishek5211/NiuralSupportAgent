@@ -1,24 +1,126 @@
-# Baseline record
+# Iterations tracked with Git
 
-# v1
+## Baseline: main / codex/baseline
 
-- Main interface: `v1.ipynb`, one question at a time.
-- Model: Groq `openai/gpt-oss-120b`.
-- Six thin tools, project-root mock API/token validation, isolated chat histories.
-- Judge is optional and manual. No automatic retries or saved run metadata.
-- No complete benchmark score is claimed.
+The first commit preserves the earlier raw-list tools, provider configuration,
+prompt and evaluator. Only package paths and the terminal adapter were normalized.
+The model counted records itself and was observed returning incorrect headcount.
+There is no complete, comparable baseline benchmark score.
 
-## Observations
+## Current: codex/support-agent
 
-Groq key/model access works. No-argument tool schemas needed a compatibility fix.
-Full repeated documentation exceeded the 8K request allowance; the guide is now
-omitted after account lookup. A previous headcount answer incorrectly said 15;
-reference counts are 14 employees / 16 workers including contractors.
-Strict judge JSON generation failed at the provider; the optional judge now requests
-plain JSON text and validates it locally. It has not been rerun after this change.
+The next commit adds constrained Pydantic queries with Python filtering and exact
+invoice sums, complete list-field access, streaming CLI, local-only configuration,
+and optional LangSmith experiments. Eight compound questions are separately
+verified using raw JSON, SQLite and the authenticated API/query engine.
 
-Automatic runs were stopped at the user's request. Future evaluations are run
-manually in the notebook. Record what worked, what failed, and one v2 hypothesis there.
+Historical experiment v2-query-tools-604925f7 reported 6/8. Human review found one
+unresolved New York clarification and one judge false rejection: payment details
+were supported by the tool but absent from the short reference answer. Traces
+confirmed Python computed the headcount and overdue sum. The original payment
+scenario had an injected transaction reference; it only tested an already
+identified payment. Current code never supplies context based on a question ID.
 
-Refactor: shared API client/auth/Pydantic models now live in project-root `mock_api/`.
-The notebook and v1 tools use named methods; no live calls were made during this refactor.
+The vendor-contact follow-up exposed an incomplete tool field catalog. That was
+corrected without changing source data. Hard cases now cover contacts, report
+relationships, compensation lookups, approval state and upcoming bills. Their
+reference facts were checked three independent ways; no hard-suite score is claimed.
+
+Compare `git diff codex/baseline..codex/support-agent`. Use a new branch and
+LangSmith experiment for the next change, keeping cases, rubric and model settings
+fixed within a comparison. Record a failure trace, targeted change, regressions
+and keep/rollback decision. Changing judge inputs or scenario context requires
+an explicitly revised evaluation before comparing scores.
+
+## Imported working notes
+
+# V2 experiment: constrained account queries
+
+Parent: v1, preserved unchanged.
+
+Observed v1 failure: the model answered 17 active employees. The supplied roster
+has 14 ONBOARDED employees and 2 ONBOARDED contractors (16 active workers).
+Diagnosis: raw list tools left counting to the model. Pydantic record validation
+alone cannot check an answer's arithmetic.
+
+Hypothesis: a typed query executed by Python removes manual counting/summing
+and reduces the records sent to the model. The model still chooses filters and
+writes the final answer, so semantic mistakes remain possible.
+
+Change: one reusable query tool (select/count/sum, filters, grouping), Pydantic
+arguments/results, explicit JSON output and corresponding prompt instructions.
+Employee, invoice and payment detail lookups remain available. Auth, fixtures,
+reference facts, judge rubric, streaming and conversation isolation are unchanged.
+
+Model configuration subsequently updated at the user's request: OpenAI agent
+`gpt-5.4-mini-2026-03-17` with medium reasoning, optional judge
+`gpt-5.4-2026-03-05` with low reasoning. Both have a 4096 output/reasoning token cap.
+OpenAI model listing succeeded (HTTP 200) and included both pinned versions;
+inference access/quota and end-to-end behavior have not been exercised.
+The judge now uses native Pydantic structured output on OpenAI. V1 code remains
+unchanged. Match model/reasoning settings to isolate the query-tool improvement.
+
+Acceptance: recover the correct headcount breakdown; preserve the other seven
+benchmark answers. No incorrect cross-currency totals or silent zero on API errors.
+Use the same benchmark/rubric and matching model settings for a comparison.
+
+Agent answers and judge outcomes: not run. No model quota spent implementing v2.
+No new tests, tracing or manifests. Manual one-case evaluation is in v2.ipynb.
+Retain/rollback: inconclusive until the user runs the notebook and reviews results.
+
+Local fixture checks (not agent benchmark scores): headcount returned 14 employees
+and 2 contractors, NY state returned six names, Orrery unpaid balance returned
+USD 3480, and the overdue-date filter returned five bills. SDK tool invocation
+returned valid JSON for all four tools. Invalid query / blank token / wrong
+employer / missing record returned 422 / 401 / 403 / 404. Python and notebook cells
+parsed successfully. No end-to-end answer quality or regression claim is made.
+
+The notebook's stale v1 imports were corrected to v2. A local schema inspection
+cell shows the function definitions generated by the SDK. All four tools are
+loaded upfront; deferred tool loading is not enabled.
+
+Configuration simplified at the user's request: v2 uses OpenAI only and reads
+only .env. Parent files, process-environment overrides, dotenv
+interpolation, provider routing and provider-specific prompt trimming are removed.
+The user will copy the credentials into that file. No model calls were run for
+this configuration cleanup.
+
+Streaming chat moved to `python -m niural_support_agent` after the
+notebook input loop did not work for the user. The CLI streams text and tool
+events, supports reset/exit, and closes its client on exit. The notebook retains
+manual evaluation and its existing results. No judge/model calls were run while
+implementing this interface change.
+
+Agent cleanup: removed product-guide and API-reference loading from the prompt.
+The agent now has account-tool instructions only. Model settings, usage and safe
+errors are in runtime.py; optional judging is in evaluate.py. SupportAgent.judge
+delegates there so existing notebook cells keep working. Streaming CLI, account
+tools, benchmark inputs and local-only .env loading are preserved. No model/judge
+calls were run for this cleanup.
+
+LangSmith integration added at the user's request. Config reads LangSmith settings
+from v2/.env. An explicit batch command runs the same eight cases once, with
+optional judging, and records one experiment containing answers, reference facts,
+scores and execution traces. Default concurrency is one; there are no model
+retries or repetitions. Dataset contents are checked before reusing an existing
+dataset. Model versions/configuration are recorded on each experiment. No dataset,
+trace or evaluation was uploaded/run while implementing this integration; live
+LangSmith delivery is not yet verified.
+
+Field coverage correction: a real chat exposed that query_account allowed only
+vendor_id/name/default_currency, although the supplied endpoint also has email,
+address, status and payment terms/method. The model incorrectly described that
+projection as the entire dataset. Expanded the v2 field catalog to the documented
+list fields across vendors, employees and invoices; derive the schema enum from
+the catalog. Whole address/location selection is supported, with scalar paths for
+filters/grouping. Prompt guidance requires re-querying omitted fields on follow-up.
+No source data, shared API implementation or benchmark labels were changed.
+
+The separate hard benchmark now has eight self-contained cases. Four additions
+cover reporting graphs, inactive teammates, missing manager assignments and
+upcoming payables. All new reference facts were verified by three independent
+methods. Added explicit suite selection to the manual batch runner. Removed the
+case-ID-specific payment hint so a new case numbered 8 cannot inherit unrelated
+freight context. Original source/remote benchmark records were not changed;
+legacy seeded payment results require a separate scenario/version before reuse.
+No model or judge calls or remote uploads were performed for this addition.

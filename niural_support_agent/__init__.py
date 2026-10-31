@@ -1,1 +1,1 @@
-"""Minimal, independently runnable OpenAI Agents SDK baseline."""
+"""Typed Niural account support agent."""

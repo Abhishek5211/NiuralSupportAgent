@@ -7,10 +7,11 @@ name = "niural-support-agent"
 version = "0.1.0"
 description = "Customer support agent over synthetic Niural account data"
 requires-python = ">=3.11"
-dependencies = ["openai-agents==0.24.0", "python-dotenv>=1.2,<2", "pydantic>=2.12.2,<3", "ipykernel>=7,<8"]
+dependencies = ["openai-agents==0.24.0", "python-dotenv>=1.2,<2", "pydantic>=2.12.2,<3", "ipykernel>=7,<8", "langsmith[openai-agents]==0.14.4"]
 
 [project.scripts]
 niural-agent = "niural_support_agent.cli:main"
+niural-benchmark = "niural_support_agent.run_benchmark:main"
 
 [tool.setuptools.packages.find]
 include = ["niural_support_agent*", "mock_api*"]

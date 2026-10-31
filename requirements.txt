@@ -2,3 +2,4 @@ openai-agents==0.24.0
 python-dotenv>=1.2,<2
 pydantic>=2.12.2,<3
 ipykernel>=7,<8
+langsmith[openai-agents]==0.14.4
