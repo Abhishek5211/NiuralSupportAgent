@@ -225,3 +225,7 @@ Run 7afa7ef5 (code 556b162), compared with 3d024296; same cases, models and limi
   from existing section labels. Keep optional LLM judgments separate; no new
   dependencies or live eval. Alternative/candidate labels measure source retrieval,
   not whether the answer is sufficient.
+
+- Add FAQ cases 31-34 requiring 2-4 sections; preserve the original 30. Save missing
+  section labels. Case 34 exposes the top-3 ceiling (maximum recall 0.75); the full
+  chat can search again, while this evaluator retrieves once. No live eval ran.

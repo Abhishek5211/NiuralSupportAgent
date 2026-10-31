@@ -61,8 +61,10 @@ async def evaluate(args):
                 try:
                     result = await retriever.search(case.question)
                     row["retrieval"] = result.model_dump()
-                    row["metrics"] = score_sections(
-                        case.expected_sections, [m.section for m in result.matches])
+                    retrieved_sections = [match.section for match in result.matches]
+                    row["metrics"] = score_sections(case.expected_sections, retrieved_sections)
+                    row["missing_sections"] = [section for section in case.expected_sections
+                                               if section not in retrieved_sections]
                 except Exception as error:
                     row["error"] = error_details(error)
                     return row

@@ -1,7 +1,8 @@
 # Product-guide FAQ baseline
 
-`faq_cases.json` has 30 standalone cases: common tasks (1-10), unusual/keyword-heavy
-queries (11-18), missing-information cases (19-20), and short queries (21-30). Each has integer `id`,
+`faq_cases.json` has 34 standalone cases: common tasks (1-10), unusual/keyword-heavy
+queries (11-18), missing-information cases (19-20), short queries (21-30), and
+cross-section questions (31-34). Each has integer `id`,
 `question`, customer-facing `facts`, and `expected_sections` from
 [`PRODUCT_GUIDE.md`](../mock_api/PRODUCT_GUIDE.md). These are source headings,
 not chunk IDs; map them after chunking. Cases 19-20 cite sections that establish
@@ -16,6 +17,12 @@ correctness, grounding and citations. Accept equivalent wording and optional det
 Short queries preserve informal wording, exact UI terms and typos. Case 24 requires
 clarifying i 99 rather than inventing a definition; its I-9 section is only a candidate.
 Case 23 lists alternative supporting sections; either establishes the same fact.
+
+Cases 31-34 require all listed sections (3, 2, 3 and 4 respectively). The evaluator
+uses one top-3 search, so case 34 has a maximum recall@3 of 0.75. MRR/nDCG can still
+be perfect with incomplete evidence; inspect recall and saved missing_sections.
+The full chat agent can search again; this single-search baseline cannot. Original
+30 cases remain unchanged; compare those separately when reviewing earlier runs.
 
 Read the full guide and verified the original 20 cases twice: first against source sections
 and factual anchors, then for exceptions, examples versus actual account records,

@@ -200,5 +200,45 @@
     "expected_sections": [
       "How to hire an employee"
     ]
+  },
+  {
+    "id": 31,
+    "question": "I'm hiring a W-2 employee: what are the four wizard stages, who must complete I-9 Section 2 and by when, and where on the employee record do I check their manager and annual salary afterward?",
+    "facts": "The W-2 wizard stages are Employee details, Payroll schedule, Configure documents, and Review & invite. Sending the invitation puts the hire in Onboarding, not Active. The employer completes I-9 Section 2; the guide states it must be completed within three business days of the employee's first day of work. On the employee record, the Work tab contains Organization position for the reporting manager and Compensation details for annual salary. This is general guidance, not evidence of a specific employee's completion or salary.",
+    "expected_sections": [
+      "How to hire an employee",
+      "Onboarding and Form I-9",
+      "The employee record"
+    ]
+  },
+  {
+    "id": 32,
+    "question": "The supplier sent a DOCX contract and a PNG invoice. Which upload accepts each, what is the invoice size limit, and can I put a 600-character explanation in the bill's Notes?",
+    "facts": "The vendor's Upload contract accepts PDF, DOC or DOCX, so DOCX is supported there. Upload vendor invoice on Add bill accepts JPEG, PNG or PDF up to 10MB, so PNG is supported there. DOCX contract support does not imply DOCX invoice support. Bill Notes allow 500 characters, so 600 characters exceed the limit; shorten the note. These are two separate upload workflows.",
+    "expected_sections": [
+      "How to add a vendor",
+      "How to add a bill"
+    ]
+  },
+  {
+    "id": 33,
+    "question": "Help me separate three screens: on a supplier bill, which of Invoice ID and Invoice number comes from Niural versus the supplier? It says Ready for payment. A customer invoice says Unlinked with -7 days below its due date. What do those labels mean, and where do I check whether money actually moved?",
+    "facts": "On a bill, Invoice ID is Niural's own organization-prefixed identifier; Invoice number is the number printed by the vendor. Ready for payment is a bill status, not proof money moved. On Accounts Receivable Invoices, Unlinked means no contract is attached for Emma to check, not a broken bank connection; -7 days is the guide's example of overdue lateness. Open More > Payments > History > Transactions for transaction records and status; the guide lists Paid and Processing. Do not infer settlement or an actual account payment from either document's label alone.",
+    "expected_sections": [
+      "Bills",
+      "Accounts receivable — Invoices",
+      "Part 3 — Transactions"
+    ]
+  },
+  {
+    "id": 34,
+    "question": "Walk me through four separate checks before our first supplier payment: where do I upload a DOCX vendor agreement, what formats and size can I upload as the vendor invoice, where do I compare Value in contract against Value in bill and run Re-analyze, and where do I check the actual transaction's payment method and status?",
+    "facts": "In Niural Pay > Vendors > Add vendor, Vendor agreement has Upload contract accepting PDF, DOC or DOCX. In Niural Pay > Bills > Add bill, Upload vendor invoice accepts JPEG, PNG or PDF up to 10MB. Open the individual bill for the anomalies table containing Niural field, Value in contract, Value in bill and Note; Re-analyze is in the Emma summary. For the actual transaction, open More > Payments > History > Transactions, whose columns include Payment method and Status. A contract discrepancy or bill status alone does not establish that money moved. All four workflows must be covered; a correct partial answer is incomplete.",
+    "expected_sections": [
+      "How to add a vendor",
+      "How to add a bill",
+      "A single bill",
+      "Part 3 — Transactions"
+    ]
   }
 ]
