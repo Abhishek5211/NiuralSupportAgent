@@ -19,7 +19,7 @@ class Config(BaseModel):
     model: str = "gpt-5.4-mini-2026-03-17"
     judge_model: str = "gpt-5.4-2026-03-05"
     mock_token: str = Field(default="local-admin", repr=False, exclude=True)
-    max_turns: int = Field(default=10, ge=1)
+    max_turns: int = Field(default=15, ge=1)
     turn_timeout: int = Field(default=120, ge=1)
     langsmith_api_key: str = Field(default="", repr=False, exclude=True)
     langsmith_tracing: bool = False
