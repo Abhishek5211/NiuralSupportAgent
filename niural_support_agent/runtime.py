@@ -6,11 +6,11 @@ from openai import APIConnectionError, APIStatusError
 from openai.types.shared import Reasoning
 
 
-def model_settings(model_name: str, effort: str) -> ModelSettings:
+def model_settings(model_name: str, effort: str, *, parallel_tool_calls: bool = False) -> ModelSettings:
     supports_reasoning = model_name.startswith(("gpt-5", "gpt-6", "o1", "o3", "o4"))
     return ModelSettings(
         max_tokens=4096,
-        parallel_tool_calls=False,
+        parallel_tool_calls=parallel_tool_calls,
         temperature=None if supports_reasoning else 0,
         reasoning=Reasoning(effort=effort) if supports_reasoning else None,
         response_include=["reasoning.encrypted_content"] if supports_reasoning else None,

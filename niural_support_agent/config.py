@@ -20,6 +20,7 @@ class Config(BaseModel):
     judge_model: str = "gpt-5.4-2026-03-05"
     mock_token: str = Field(default="local-admin", repr=False, exclude=True)
     max_turns: int = Field(default=15, ge=1)
+    parallel_tool_calls: bool = False
     turn_timeout: int = Field(default=120, ge=1)
     langsmith_api_key: str = Field(default="", repr=False, exclude=True)
     langsmith_tracing: bool = False
@@ -44,6 +45,7 @@ class Config(BaseModel):
         return cls(api_key=api_key,
                    model=values.get("AGENT_MODEL") or cls.model_fields["model"].default,
                    judge_model=values.get("JUDGE_MODEL") or cls.model_fields["judge_model"].default,
+                   parallel_tool_calls=values.get("PARALLEL_TOOL_CALLS") or False,
                    mock_token=values.get("NIURAL_MOCK_TOKEN", "local-admin"),
                    langsmith_api_key=values.get("LANGSMITH_API_KEY") or "",
                    langsmith_tracing=values.get("LANGSMITH_TRACING") or False,

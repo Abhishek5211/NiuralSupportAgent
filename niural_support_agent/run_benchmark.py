@@ -76,6 +76,8 @@ async def run_benchmark(agent, *, name="account-tools", description="Typed accou
             experiment_prefix=name,
             description=description,
             metadata={**git_metadata(), "suite": suite, "agent_model": config.model,
+                      "max_turns": config.max_turns, "turn_timeout": config.turn_timeout,
+                      "parallel_tool_calls": config.parallel_tool_calls,
                       "judge_model": config.judge_model if judge else None,
                       "snapshot_date": "2026-09-28"},
             max_concurrency=max_concurrency,

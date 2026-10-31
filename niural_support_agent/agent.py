@@ -35,7 +35,8 @@ class SupportAgent:
             name="Niural support",
             instructions=(PACKAGE_DIR / "prompt.txt").read_text(encoding="utf-8"),
             model=OpenAIResponsesModel(config.model, self.client),
-            model_settings=model_settings(config.model, "medium"),
+            model_settings=model_settings(config.model, "medium",
+                                          parallel_tool_calls=config.parallel_tool_calls),
             tools=build_tools(MockAPI(config.mock_token)),
         )
         self.histories = {}

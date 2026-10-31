@@ -1,7 +1,7 @@
 # Niural support agent
 
 Use Git branches and commits for iterations. `main` and `v1` preserve
-the initial raw-tool agent; `v2` contains the current implementation.
+the initial raw-tool agent; `v2` preserves the account baseline; `v3` adds compensation queries, averages and sorting.
 There are no version folders. See `docs/iterations.md` for observations and limits.
 
 ## Setup
@@ -50,8 +50,8 @@ python -m niural_support_agent.run_benchmark --suite arithmetic --name v2-arithm
 ```
 
 This runs eight answers and optional correctness judging in LangSmith. Add
-`--no-judge` to save answers and traces without judge calls. No arithmetic-suite
-agent results have been recorded yet. The notebook can select the same suite.
+`--no-judge` to save answers and traces without judge calls. The original arithmetic export scored 4/8: two turn-limit failures and two
+compensation-discovery failures. A rerun with the increased limit is a separate experiment. The notebook can select the same suite.
 
 The `standard` suite preserves legacy questions; its original payment case relied
 on an injected ID. That shortcut is removed from current code. Revise/rebaseline
@@ -71,3 +71,31 @@ Tools perform deterministic filtering/counting/summing over supplied account dat
 The snapshot date is 2026-09-28. Vendor addresses contain city/country only. Help
 articles and API-reference documents are not loaded into the agent prompt; RAG is
 deferred. See the trace and reference facts when reviewing a judge decision.
+
+## V3 comparison
+
+`query_account` fetches employee details when compensation is requested or used in
+filters, aggregates or sorting. Ordinary list queries do not fetch compensation.
+Select `compensation` or its dotted amount/currency/frequency fields. Use
+`aggregate_field` (replacing v2's `sum_field`) with `sum` or `average`, and
+`order_by=[{"field": "compensation.amount", "direction": "desc"}]` for salary
+rankings. Filter rankings to one currency and pay frequency. Aggregates keep those
+units separate, return their contributing count and include employee detail sources.
+
+The v2 baseline preserves the increased 15-turn limit. V3 commits separately record
+the description fix, batched queries, and configurable parallel calls. No calculator
+or RAG is included. V3 performance is unmeasured until a manual run:
+
+```powershell
+python -m niural_support_agent.run_benchmark --suite arithmetic --name v3-query-tools
+python -m niural_support_agent.run_benchmark --suite hard --name v3-query-tools-hard
+```
+
+Run with `PARALLEL_TOOL_CALLS=false` first. Then set it to `true` in root `.env`,
+restart the CLI/notebook agent, and use a distinct experiment name such as
+`v3-query-tools-parallel`. This controls independent model-issued tool calls, not
+benchmark case concurrency. The judge keeps parallel calls disabled. Models,
+turn limit, timeout and actual parallel setting are experiment metadata. Keep
+cases, rubric and models fixed; compare correctness, requests, tokens and latency,
+and inspect tool calls in LangSmith. Internal detail reads share one query tool
+span; their endpoint references appear in `detail_sources`.

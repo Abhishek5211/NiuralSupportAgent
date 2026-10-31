@@ -93,3 +93,21 @@ flowchart LR
 - Capture the v2 baseline before adding sorting, arithmetic and salary-detail
   guidance on v3. Compare identical cases and settings; retain traces and review
   any regressions. Product-guide vector search remains a separate v4 iteration.
+
+## V3 - compensation queries and controlled parallel calls
+
+- Preserve the user's 15-turn limit on v2 before creating v3.
+- First commit: describe compensation in get_employee so salary/rate discovery
+  can be evaluated separately from batching.
+- Second commit: query_account fetches compensation details for list-filtered
+  workers internally, then applies compensation filters, Decimal sums/averages
+  and stable sorting. It retains detail sources and fails on missing required data.
+- Third commit: make independent parallel tool calls opt-in through root .env;
+  record the actual setting, turn limit and timeout in experiment metadata.
+- Reference arithmetic export a58a8ee1: 4/8 correct; cases 1/6 reached the model-turn
+  limit and cases 3/5 incorrectly declared compensation unavailable. The four other
+  cases passed. The reported successful higher-limit retry is not in that export.
+- V3 scores, call reductions and regressions remain unmeasured. Run the unchanged
+  arithmetic and hard suites manually with matching models and limits. Compare
+  parallel disabled/enabled separately; a changed limit is a different baseline.
+- Calculator and product-guide search remain deferred. No paid runs are automatic.
